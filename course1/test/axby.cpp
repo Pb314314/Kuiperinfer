@@ -4,9 +4,12 @@
 #include <armadillo>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
+#include <iostream>
+using namespace std;
 void Axby(const arma::fmat &x, const arma::fmat &w, const arma::fmat &b,
           arma::fmat &y) {
   // 把代码写这里 完成y = w * x + b的运算
+  cout << "just test print" <<endl;
 }
 
 TEST(test_arma, Axby) {
