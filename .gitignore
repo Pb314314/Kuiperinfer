@@ -47,6 +47,8 @@
 
 .idea/vcs.xml
 
+.vscode
+
 build
 
 log

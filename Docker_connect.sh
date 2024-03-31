@@ -18,4 +18,14 @@ if [[ $1 = --pull ]] || ! docker image inspect "$image" &>/dev/null; then
     docker pull "$image"
 fi
 
-exec docker run -it --rm -v "$workdir:/home/Kuiperinfer" "$image"
+#exec docker run -it --rm -v "$workdir:/home/Kuiperinfer" "$image"
+
+# Check if the container exists
+if docker ps -a --format '{{.Names}}' | grep -Eq "^kuiperinfer$"; then
+    # Restart the existing container
+    docker restart kuiperinfer
+else
+    # Run a new container
+    docker run --name kuiperinfer -it -v "$workdir:/home/Kuiperinfer" "$image" /bin/bash
+fi
+
