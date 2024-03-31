@@ -5,6 +5,7 @@
 ## Environment Setting
 Run Docker_connect.sh to connect to the Docker container. 
 Then, connect Visual Studio Code to the Docker container and start working!
+
 :smile::smile::smile::smile::smile::smile:
 
 ### Lab1
