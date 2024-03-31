@@ -1,8 +1,8 @@
-## ECE8803/CS8803 HML Final Project
+# ECE8803/CS8803 HML Final Project
 
-# Kuiperinfer : a inference framework for learners
+## Kuiperinfer : a inference framework for learners
 
-# Environment Setting
+## Environment Setting
 Run Docker_connect.sh to connect to the Docker container. 
 Then, connect Visual Studio Code to the Docker container and start working!
 :smile::smile::smile::smile::smile::smile:
