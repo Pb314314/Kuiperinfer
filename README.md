@@ -4,15 +4,19 @@
 
 ## Environment Setting
 Run Docker_connect.sh to connect to the Docker container. 
+
 Then, connect Visual Studio Code to the Docker container and start working!
 
 :smile::smile::smile::smile::smile::smile:
 
 ### Lab1
 Use the armadillo library to compute arma::fmat matrix.
-A very easy lab, just use easy operation and arma::exp API.
+A very easy lab, just use easy operation and arma::exp API.(3/30/2024)
 
 ### Lab2
+Understand Tensor class.(Use template and Armadillo and design user interface. Implemented the float template specialization)
+Use Armadillo to store the fcube in class and understand the class functions.
+Implemented Padding and Flatten. (4/1/2024) 
 
 ### Lab3
 

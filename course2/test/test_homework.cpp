@@ -23,13 +23,13 @@ TEST(test_homework, homework1_flatten2) {
 
 TEST(test_homework, homework2_padding1) {
   using namespace kuiper_infer;
-  Tensor<float> tensor(3, 4, 5);
+  Tensor<float> tensor(3, 4, 5);      //{channel, rows, cols}
   ASSERT_EQ(tensor.channels(), 3);
   ASSERT_EQ(tensor.rows(), 4);
   ASSERT_EQ(tensor.cols(), 5);
 
   tensor.Fill(1.f);
-  tensor.Padding({1, 2, 3, 4}, 0);
+  tensor.Padding({1, 2, 3, 4}, 0);  //{up, bottom, left, right}
   ASSERT_EQ(tensor.rows(), 7);
   ASSERT_EQ(tensor.cols(), 12);
 
