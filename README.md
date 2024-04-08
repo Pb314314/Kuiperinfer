@@ -21,17 +21,16 @@ Use Armadillo to store the fcube in class and understand the class functions.
 Implemented Padding and Flatten. (4/1/2024) 
 
 ### Lab3
-Learning about ir representation. 
+Learn about deep learning model **intermediate representation**. 
 
-Learning about pnnx(by nihui dalao). Learning about model graph, operators and operands structures. 
+Learn about pnnx(`ir.cpp`, `ir.hpp`. Created by nihui dalao). Learn about model graph, operators and operands structures. 
 
-Learning about kuiperinfer runtime representation of graph, operators and operands structures. (4/7/2024)
+Learn about kuiperinfer Runtime representation of graph, operators and operands structures. (4/7/2024)
 
-Finished RuntimeGraph::InitGraphParams();
+Finish RuntimeGraph::InitGraphParams();
 
-Modify the Runtime_Operator.params from std::mapping<std::string, Runtime_Parameter> into std::mapping<std::string, 
-
-std::shared_ptr<Runtime_Parameter>>, and change the test code. (4/8/2024)
+Modify the Runtime_Operator.params from `std::mapping<std::string, Runtime_Parameter>` to `std::mapping<std::string, 
+std::shared_ptr<Runtime_Parameter>>`, and change the test code. (4/8/2024)
 
 ### Lab4
 
