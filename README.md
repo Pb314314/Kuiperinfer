@@ -25,7 +25,9 @@ Learning about ir representation.
 
 Learning about pnnx(by nihui dalao). Learning about model graph, operators and operands structures. 
 
-Learning about kuiperinfer runtime representation of graph, operators and operands structures.
+Learning about kuiperinfer runtime representation of graph, operators and operands structures. (4/7/2024)
+
+
 ### Lab4
 
 ### Lab5
