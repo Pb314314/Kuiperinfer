@@ -129,9 +129,65 @@ namespace kuiper_infer {
     }
 
     void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter> &params,const std::shared_ptr<RuntimeOperator> &runtime_operator) {
+        for(const auto & [name, parameter] : params){
+            const int type = parameter.type;
+            switch (type)
+            {
+            case int(RuntimeParameterType::kParameterUnknown):{
+                std::shared_ptr<RuntimeParameter> runtime_parameter = std::make_shared<RuntimeParameter>();
+                runtime_operator->params.insert({name, runtime_parameter});
+                break;
+            }
+            case int(RuntimeParameterType::kParameterBool):{     // 
+                std::shared_ptr<RuntimeParameterBool> runtime_parameter = std::make_shared<RuntimeParameterBool>();
+                runtime_parameter->value = parameter.b;
+                runtime_operator->params.insert({name, runtime_parameter});
+                break;
+            }
+            case int(RuntimeParameterType::kParameterInt): {
+                std::shared_ptr<RuntimeParameterInt> runtime_parameter = std::make_shared<RuntimeParameterInt>();
+                runtime_parameter->value = parameter.i;
+                runtime_operator->params.insert({name, runtime_parameter});
+                break;
+                }
+            case int(RuntimeParameterType::kParameterFloat): {
+                std::shared_ptr<RuntimeParameterFloat> runtime_parameter = std::make_shared<RuntimeParameterFloat>();
+                runtime_parameter->value = parameter.f;
+                runtime_operator->params.insert({name, runtime_parameter});
+                break;
+            }
+            case int(RuntimeParameterType::kParameterString): {
+                std::shared_ptr<RuntimeParameterString> runtime_parameter = std::make_shared<RuntimeParameterString>();
+                runtime_parameter->value = parameter.s;
+                runtime_operator->params.insert({name, runtime_parameter});
+                break;
+            }
+            case int(RuntimeParameterType::kParameterIntArray): {
+                std::shared_ptr<RuntimeParameterIntArray> runtime_parameter = std::make_shared<RuntimeParameterIntArray>();
+                runtime_parameter->value = parameter.ai;
+                runtime_operator->params.insert({name, runtime_parameter});
+                break;
+            }
+            case int(RuntimeParameterType::kParameterFloatArray): {
+                std::shared_ptr<RuntimeParameterFloatArray> runtime_parameter = std::make_shared<RuntimeParameterFloatArray>();
+                runtime_parameter->value = parameter.af;
+                runtime_operator->params.insert({name, runtime_parameter});
+                break;
+            }
+            case int(RuntimeParameterType::kParameterStringArray): {
+                std::shared_ptr<RuntimeParameterStringArray> runtime_parameter = std::make_shared<RuntimeParameterStringArray>();
+                runtime_parameter->value = parameter.as;
+                runtime_operator->params.insert({name, runtime_parameter});
+                break;
+            }
+            default: {
+                LOG(FATAL) << "Unknown parameter type: " << type;
+            }
+            }
+        /*
         for (const auto &[name, parameter]: params) {
             const int type = parameter.type;
-            switch (type) {
+            switch (type) {     // assign value based on data type
                 case int(RuntimeParameterType::kParameterUnknown): {
                     RuntimeParameter *runtime_parameter = new RuntimeParameter;
                     runtime_operator->params.insert({name, runtime_parameter});
@@ -167,16 +223,14 @@ namespace kuiper_infer {
                 }
 
                 case int(RuntimeParameterType::kParameterIntArray): {
-                    RuntimeParameterIntArray *runtime_parameter =
-                            new RuntimeParameterIntArray;
+                    RuntimeParameterIntArray *runtime_parameter = new RuntimeParameterIntArray;
                     runtime_parameter->value = parameter.ai;
                     runtime_operator->params.insert({name, runtime_parameter});
                     break;
                 }
 
                 case int(RuntimeParameterType::kParameterFloatArray): {
-                    RuntimeParameterFloatArray *runtime_parameter =
-                            new RuntimeParameterFloatArray;
+                    RuntimeParameterFloatArray *runtime_parameter = new RuntimeParameterFloatArray;
                     runtime_parameter->value = parameter.af;
                     runtime_operator->params.insert({name, runtime_parameter});
                     break;
@@ -192,6 +246,7 @@ namespace kuiper_infer {
                     LOG(FATAL) << "Unknown parameter type: " << type;
                 }
             }
+        }*/
         }
     }
 

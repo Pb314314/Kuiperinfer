@@ -27,6 +27,11 @@ Learning about pnnx(by nihui dalao). Learning about model graph, operators and o
 
 Learning about kuiperinfer runtime representation of graph, operators and operands structures. (4/7/2024)
 
+Finished RuntimeGraph::InitGraphParams();
+
+Modify the Runtime_Operator.params from std::mapping<std::string, Runtime_Parameter> into std::mapping<std::string, 
+
+std::shared_ptr<Runtime_Parameter>>, and change the test code. (4/8/2024)
 
 ### Lab4
 

@@ -40,7 +40,9 @@ struct RuntimeOperator {
   std::map<std::string, std::shared_ptr<RuntimeOperator>> output_operators;  // output operators mapping 
 
   // parameter info: contain parameter information
-  std::map<std::string, RuntimeParameter*> params;  
+  //std::map<std::string, RuntimeParameter*> params;  
+  // pb modify this params to use shared_pointer
+  std::map<std::string, std::shared_ptr<RuntimeParameter>> params;
   // attribute info: contain all the weight information 
   std::map<std::string, std::shared_ptr<RuntimeAttribute>> attribute;  // attribute info
 };

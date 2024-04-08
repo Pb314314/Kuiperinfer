@@ -132,32 +132,27 @@ TEST(test_ir, pnnx_graph_operands_customer_producer) {
 
 TEST(test_ir, pnnx_graph_all) {
   using namespace kuiper_infer;
-  /**
-   * 如果这里加载失败，请首先考虑相对路径的正确性问题
-   */
   std::string bin_path("../model_file/test_linear.pnnx.bin");
   std::string param_path("../model_file/test_linear.pnnx.param");
   RuntimeGraph graph(param_path, bin_path);
   const bool init_success = graph.Init();
   ASSERT_EQ(init_success, true);
   const auto &operators = graph.operators();
-  for (const auto &operator_ : operators) {
+  for (const auto &operator_ : operators) {     // every operator of current graph
     LOG(INFO) << "op name: " << operator_->name << " type: " << operator_->type;
     LOG(INFO) << "attribute:";
-    for (const auto &[name, attribute_] : operator_->attribute) {
-      LOG(INFO) << name << " type: " << int(attribute_->type)
-                << " shape: " << ShapeStr(attribute_->shape);
+    for (const auto &[name, attribute_] : operator_->attribute) {     // every attribute of current operator, print the attribute shape
+      LOG(INFO) << name << " type: " << int(attribute_->type) << " shape: " << ShapeStr(attribute_->shape);
       const auto &weight_data = attribute_->weight_data;
-      ASSERT_EQ(weight_data.empty(), false); // 判断权重是否为空
+      ASSERT_EQ(weight_data.empty(), false); 
     }
     LOG(INFO) << "inputs: ";
-    for (const auto &input : operator_->input_operands) {
-      LOG(INFO) << "name: " << input.first
-                << " shape: " << ShapeStr(input.second->shapes);
+    for (const auto &input : operator_->input_operands) {     // every pair of input operand: {name, operand}
+      LOG(INFO) << "name: " << input.first << " shape: " << ShapeStr(input.second->shapes);
     }
 
     LOG(INFO) << "outputs: ";
-    for (const auto &output : operator_->output_names) {
+    for (const auto &output : operator_->output_names) {    // every pair of output operand: {name, } 
       LOG(INFO) << "name: " << output;
     }
     LOG(INFO) << "--------------------------------------";
@@ -177,28 +172,28 @@ TEST(test_ir, pnnx_graph_all_homework) {
   const auto &operators = graph.operators();
   for (const auto &operator_ : operators) {
     if (operator_->name == "linear") {
-      const auto &params = operator_->params;
+      const auto &params = operator_->params;   // mapping of parameters
       ASSERT_EQ(params.size(), 3);
         /////////////////////////////////
       ASSERT_EQ(params.count("bias"), 1);
-      RuntimeParameter *parameter_bool = params.at("bias");
+      std::shared_ptr<RuntimeParameter> parameter_bool = params.at("bias");
       ASSERT_NE(parameter_bool, nullptr);
-      ASSERT_EQ((dynamic_cast<RuntimeParameterBool *>(parameter_bool)->value),
+      ASSERT_EQ((dynamic_cast<RuntimeParameterBool *>(parameter_bool.get())->value),
                 true);
       /////////////////////////////////
       ASSERT_EQ(params.count("in_features"), 1);
-      RuntimeParameter *parameter_in_features = params.at("in_features");
+      std::shared_ptr<RuntimeParameter> parameter_in_features = params.at("in_features");
       ASSERT_NE(parameter_in_features, nullptr);
       ASSERT_EQ(
-          (dynamic_cast<RuntimeParameterInt *>(parameter_in_features)->value),
+          (dynamic_cast<RuntimeParameterInt *>(parameter_in_features.get())->value),
           32);
 
       /////////////////////////////////
-      ASSERT_EQ(params.count("out_features"), 1);
-      RuntimeParameter *parameter_out_features = params.at("out_features");
+      ASSERT_EQ(params.count("out_features"), 1); 
+      std::shared_ptr<RuntimeParameter> parameter_out_features = params.at("out_features");
       ASSERT_NE(parameter_out_features, nullptr);
       ASSERT_EQ(
-          (dynamic_cast<RuntimeParameterInt *>(parameter_out_features)->value),
+          (dynamic_cast<RuntimeParameterInt *>(parameter_out_features.get())->value),
           128);
     }
   }

@@ -19,7 +19,7 @@ namespace kuiper_infer {
  * 6.string array
  * 7.float array
  */
-struct RuntimeParameter { /// 计算节点中的参数信息
+struct RuntimeParameter { // base class
   virtual ~RuntimeParameter() = default;
 
   explicit RuntimeParameter(RuntimeParameterType type = RuntimeParameterType::kParameterUnknown) : type(type) {
@@ -28,6 +28,7 @@ struct RuntimeParameter { /// 计算节点中的参数信息
   RuntimeParameterType type = RuntimeParameterType::kParameterUnknown;
 };
 
+// need to use these classes for different type of parameters
 struct RuntimeParameterInt : public RuntimeParameter {
   RuntimeParameterInt() : RuntimeParameter(RuntimeParameterType::kParameterInt) {
 

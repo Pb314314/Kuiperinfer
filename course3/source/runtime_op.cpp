@@ -6,12 +6,14 @@
 
 namespace kuiper_infer  {
 RuntimeOperator::~RuntimeOperator() {
+  // Pb delete this, modify second pair element in params to smart pointer
+  /*
   for (auto& [_, param] : this->params) {
     if (param != nullptr) {
       delete param;
       param = nullptr;
     }
-  }
+  }*/
 }
 
 }  // namespace kuiper_infer
