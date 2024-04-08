@@ -25,12 +25,17 @@ Learn about deep learning model **intermediate representation**.
 
 Learn about pnnx(`ir.cpp`, `ir.hpp`. Created by nihui dalao). Learn about model graph, operators and operands structures. 
 
-Learn about kuiperinfer Runtime representation of graph, operators and operands structures. (4/7/2024)
+Learn about kuiperinfer Runtime representation of graph, operators and operands structures. 
 
-Finish RuntimeGraph::InitGraphParams();
+By the way, finished CS6290 Project2 yesterday.:guitar: (4/7/2024)
 
-Modify the Runtime_Operator.params from `std::mapping<std::string, Runtime_Parameter>` to `std::mapping<std::string, 
-std::shared_ptr<Runtime_Parameter>>`, and change the test code. (4/8/2024)
+
+
+Finish `RuntimeGraph::InitGraphParams();`
+
+Modify the `Runtime_Operator.params` from `std::mapping<std::string, Runtime_Parameter>` to `std::mapping<std::string, std::shared_ptr<Runtime_Parameter>>`, and change the test code. (4/8/2024)
+
+:smiley::smiley::smiley::smiley::smiley::smiley::smiley:
 
 ### Lab4
 
