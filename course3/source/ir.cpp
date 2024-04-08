@@ -301,7 +301,7 @@ Parameter::Parameter(const torch::jit::Value* value)
 }
 #endif // BUILD_PNNX
 
-bool operator==(const Parameter& lhs, const Parameter& rhs)
+bool operator==(const Parameter& lhs, const Parameter& rhs) // global operator overloading
 {
     if (lhs.type != rhs.type)
         return false;
@@ -637,6 +637,7 @@ static void load_shape(Operator* op, const std::string& key, const std::string& 
     }
 }
 
+// load attribute for an operator, key = key
 static void load_attribute(Operator* op, const std::string& key, const std::string& value, StoreZipReader& szr)
 {
     Attribute& a = op->attrs[key];
@@ -690,9 +691,10 @@ static void load_attribute(Operator* op, const std::string& key, const std::stri
     }
 
     a.data.resize(bytesize);
-    szr.read_file(filename, (char*)a.data.data());
+    szr.read_file(filename, (char*)a.data.data());  // read attribute data from file and assign to a.data.data()
 }
 
+//load two files to set all the operators and operands and 
 int Graph::load(const std::string& parampath, const std::string& binpath)
 {
     std::ifstream is(parampath, std::ios::in | std::ios::binary);
@@ -728,8 +730,9 @@ int Graph::load(const std::string& parampath, const std::string& binpath)
         iss >> operator_count >> operand_count;
     }
 
-    for (int i = 0; i < operator_count; i++)
+    for (int i = 0; i < operator_count; i++)            
     {
+        // set input operand, output operand for every operator
         std::string line;
         std::getline(is, line);
         std::istringstream iss(line);
@@ -739,31 +742,32 @@ int Graph::load(const std::string& parampath, const std::string& binpath)
         int input_count = 0;
         int output_count = 0;
 
-        iss >> type >> name >> input_count >> output_count;
+        iss >> type >> name >> input_count >> output_count;     // operator features
 
-        Operator* op = new_operator(type, name);
+        Operator* op = new_operator(type, name);        // create operator
 
-        for (int j = 0; j < input_count; j++)
+        for (int j = 0; j < input_count; j++)           // input operand of current operator     
         {
             std::string operand_name;
             iss >> operand_name;
 
-            Operand* r = get_operand(operand_name);
-            r->consumers.push_back(op);
-            op->inputs.push_back(r);
+            Operand* r = get_operand(operand_name);     // create input operand
+            r->consumers.push_back(op);                 // multiple consumers for one operand
+            op->inputs.push_back(r);                    // add operand to operator
         }
 
-        for (int j = 0; j < output_count; j++)
+        for (int j = 0; j < output_count; j++)          // output operand of current operator
         {
             std::string operand_name;
             iss >> operand_name;
 
-            Operand* r = new_operand(operand_name);
-            r->producer = op;
+            Operand* r = new_operand(operand_name);     // create output operand
+            r->producer = op;                           // only one producer for one operand
             op->outputs.push_back(r);
         }
 
         // key=value
+        // set attribute and parameters for operator
         while (!iss.eof())
         {
             std::string param;
@@ -778,7 +782,7 @@ int Graph::load(const std::string& parampath, const std::string& binpath)
             if (key[0] == '@')
             {
                 // attribute
-                load_attribute(op, key.substr(1), value, szr);
+                load_attribute(op, key.substr(1), value, szr);      // load attribute for key = key.substr(1)  
             }
             else if (key[0] == '$')
             {

@@ -20,11 +20,9 @@ static std::string ShapeStr(const std::vector<int> &shapes) {
 
 TEST(test_ir, pnnx_graph_ops) {
   using namespace kuiper_infer;
-  /**
-   * 如果这里加载失败，请首先考虑相对路径的正确性问题
-   */
-  std::string bin_path("course3/model_file/test_linear.pnnx.bin");
-  std::string param_path("course3/model_file/test_linear.pnnx.param");
+
+  std::string bin_path("../model_file/test_linear.pnnx.bin");
+  std::string param_path("../model_file/test_linear.pnnx.param");
   std::unique_ptr<pnnx::Graph> graph = std::make_unique<pnnx::Graph>();
   int load_result = graph->load(param_path, bin_path);
   // 如果这里加载失败，请首先考虑相对路径(bin_path和param_path)的正确性问题
@@ -41,12 +39,12 @@ TEST(test_ir, pnnx_graph_operands) {
   /**
    * 如果这里加载失败，请首先考虑相对路径的正确性问题
    */
-  std::string bin_path("course3/model_file/test_linear.pnnx.bin");
-  std::string param_path("course3/model_file/test_linear.pnnx.param");
+  std::string bin_path("../model_file/test_linear.pnnx.bin");
+  std::string param_path("../model_file/test_linear.pnnx.param");
   std::unique_ptr<pnnx::Graph> graph = std::make_unique<pnnx::Graph>();
   int load_result = graph->load(param_path, bin_path);
   // 如果这里加载失败，请首先考虑相对路径(bin_path和param_path)的正确性问题
-  ASSERT_EQ(load_result, 0);
+  ASSERT_EQ(load_result, 0); 
   const auto &ops = graph->ops;
   for (int i = 0; i < ops.size(); ++i) {
     const auto &op = ops.at(i);
@@ -72,8 +70,8 @@ TEST(test_ir, pnnx_graph_operands_and_params) {
   /**
    * 如果这里加载失败，请首先考虑相对路径的正确性问题
    */
-  std::string bin_path("course3/model_file/test_linear.pnnx.bin");
-  std::string param_path("course3/model_file/test_linear.pnnx.param");
+  std::string bin_path("../model_file/test_linear.pnnx.bin");
+  std::string param_path("../model_file/test_linear.pnnx.param");
   std::unique_ptr<pnnx::Graph> graph = std::make_unique<pnnx::Graph>();
   int load_result = graph->load(param_path, bin_path);
   // 如果这里加载失败，请首先考虑相对路径(bin_path和param_path)的正确性问题
@@ -113,25 +111,22 @@ TEST(test_ir, pnnx_graph_operands_and_params) {
 
 TEST(test_ir, pnnx_graph_operands_customer_producer) {
   using namespace kuiper_infer;
-  /**
-   * 如果这里加载失败，请首先考虑相对路径的正确性问题
-   */
-  std::string bin_path("course3/model_file/test_linear.pnnx.bin");
-  std::string param_path("course3/model_file/test_linear.pnnx.param");
-  std::unique_ptr<pnnx::Graph> graph = std::make_unique<pnnx::Graph>();
-  int load_result = graph->load(param_path, bin_path);
-  // 如果这里加载失败，请首先考虑相对路径(bin_path和param_path)的正确性问题
+  std::string bin_path("../model_file/test_linear.pnnx.bin");
+  std::string param_path("../model_file/test_linear.pnnx.param");
+  std::unique_ptr<pnnx::Graph> graph = std::make_unique<pnnx::Graph>();   // initialize the pnnx:Graph
+  int load_result = graph->load(param_path, bin_path);    // set every operator, set input, ouput operands, attribute, parameters for every operator
+  
   ASSERT_EQ(load_result, 0);
   const auto &operands = graph->operands;
-  for (int i = 0; i < operands.size(); ++i) {
+  for (int i = 0; i < operands.size(); ++i) {     // for every operand
     const auto &operand = operands.at(i);
     LOG(INFO) << "Operand Name: #" << operand->name;
     LOG(INFO) << "Customers: ";
-    for (const auto &customer : operand->consumers) {
+    for (const auto &customer : operand->consumers) {   // print consumer of operand
       LOG(INFO) << customer->name;
     }
 
-    LOG(INFO) << "Producer: " << operand->producer->name;
+    LOG(INFO) << "Producer: " << operand->producer->name;   // print producer of operand
   }
 }
 
@@ -140,8 +135,8 @@ TEST(test_ir, pnnx_graph_all) {
   /**
    * 如果这里加载失败，请首先考虑相对路径的正确性问题
    */
-  std::string bin_path("course3/model_file/test_linear.pnnx.bin");
-  std::string param_path("course3/model_file/test_linear.pnnx.param");
+  std::string bin_path("../model_file/test_linear.pnnx.bin");
+  std::string param_path("../model_file/test_linear.pnnx.param");
   RuntimeGraph graph(param_path, bin_path);
   const bool init_success = graph.Init();
   ASSERT_EQ(init_success, true);
@@ -174,8 +169,8 @@ TEST(test_ir, pnnx_graph_all_homework) {
   /**
    * 如果这里加载失败，请首先考虑相对路径的正确性问题
    */
-  std::string bin_path("course3/model_file/test_linear.pnnx.bin");
-  std::string param_path("course3/model_file/test_linear.pnnx.param");
+  std::string bin_path("../model_file/test_linear.pnnx.bin");
+  std::string param_path("../model_file/test_linear.pnnx.param");
   RuntimeGraph graph(param_path, bin_path);
   const bool init_success = graph.Init();
   ASSERT_EQ(init_success, true);

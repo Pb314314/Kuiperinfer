@@ -51,31 +51,30 @@ namespace kuiper_infer {
                 LOG(ERROR) << "Meet the empty node";
                 continue;
             } else {
-                std::shared_ptr<RuntimeOperator> runtime_operator =
-                        std::make_shared<RuntimeOperator>();
-                // 初始化算子的名称
+                std::shared_ptr<RuntimeOperator> runtime_operator = std::make_shared<RuntimeOperator>();
+                // initialize operator name
                 runtime_operator->name = op->name;
                 runtime_operator->type = op->type;
 
-                // 初始化算子中的input
+                // initialize the input operator of current operator, using op->inputs
                 const std::vector<pnnx::Operand *> &inputs = op->inputs;
                 if (!inputs.empty()) {
                     InitGraphOperatorsInput(inputs, runtime_operator);
                 }
 
-                // 记录输出operand中的名称
+                // Initialize the output operator of current operator, using op->outputs
                 const std::vector<pnnx::Operand *> &outputs = op->outputs;
                 if (!outputs.empty()) {
                     InitGraphOperatorsOutput(outputs, runtime_operator);
                 }
 
-                // 初始化算子中的attribute(权重)
+                // Initialize the attribute of current operator, using op->attrs
                 const std::map<std::string, pnnx::Attribute> &attrs = op->attrs;
                 if (!attrs.empty()) {
                     InitGraphAttrs(attrs, runtime_operator);
                 }
 
-                // 初始化算子中的parameter
+                // Initialize the parameter  of current operator, using op->params
                 const std::map<std::string, pnnx::Parameter> &params = op->params;
                 if (!params.empty()) {
                     InitGraphParams(params, runtime_operator);
@@ -87,10 +86,8 @@ namespace kuiper_infer {
 
         return true;
     }
-
-    void RuntimeGraph::InitGraphOperatorsInput(
-            const std::vector<pnnx::Operand *> &inputs,
-            const std::shared_ptr<RuntimeOperator> &runtime_operator) {
+    // initialize the RuntimeOperand input operators
+    void RuntimeGraph::InitGraphOperatorsInput(const std::vector<pnnx::Operand *> &inputs, const std::shared_ptr<RuntimeOperator> &runtime_operator) {
         for (const pnnx::Operand *input: inputs) {
             if (!input) {
                 continue;
@@ -118,10 +115,8 @@ namespace kuiper_infer {
             runtime_operator->input_operands_seq.push_back(runtime_operand);
         }
     }
-
-    void RuntimeGraph::InitGraphOperatorsOutput(
-            const std::vector<pnnx::Operand *> &outputs,
-            const std::shared_ptr<RuntimeOperator> &runtime_operator) {
+    // Initialize the output operators
+    void RuntimeGraph::InitGraphOperatorsOutput(const std::vector<pnnx::Operand *> &outputs,const std::shared_ptr<RuntimeOperator> &runtime_operator) {
         for (const pnnx::Operand *output: outputs) {
             if (!output) {
                 continue;
@@ -133,9 +128,7 @@ namespace kuiper_infer {
         }
     }
 
-    void RuntimeGraph::InitGraphParams(
-            const std::map<std::string, pnnx::Parameter> &params,
-            const std::shared_ptr<RuntimeOperator> &runtime_operator) {
+    void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter> &params,const std::shared_ptr<RuntimeOperator> &runtime_operator) {
         for (const auto &[name, parameter]: params) {
             const int type = parameter.type;
             switch (type) {
@@ -202,14 +195,11 @@ namespace kuiper_infer {
         }
     }
 
-    void RuntimeGraph::InitGraphAttrs(
-            const std::map<std::string, pnnx::Attribute> &attrs,
-            const std::shared_ptr<RuntimeOperator> &runtime_operator) {
+    void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &attrs,const std::shared_ptr<RuntimeOperator> &runtime_operator) {
         for (const auto &[name, attr]: attrs) {
             switch (attr.type) {
                 case 1: {
-                    std::shared_ptr<RuntimeAttribute> runtime_attribute =
-                            std::make_shared<RuntimeAttribute>();
+                    std::shared_ptr<RuntimeAttribute> runtime_attribute =std::make_shared<RuntimeAttribute>();
                     runtime_attribute->type = RuntimeDataType::kTypeFloat32;
                     runtime_attribute->weight_data = attr.data;
                     runtime_attribute->shape = attr.shape;
@@ -223,8 +213,7 @@ namespace kuiper_infer {
         }
     }
 
-    const std::vector<std::shared_ptr<RuntimeOperator>> &
-    RuntimeGraph::operators() const {
+    const std::vector<std::shared_ptr<RuntimeOperator>> & RuntimeGraph::operators() const {
         return this->operators_;
     }
 

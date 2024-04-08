@@ -38,7 +38,8 @@ namespace pnnx {
 class Parameter
 {
 public:
-    Parameter()
+    // different constructors for different type of data;
+    Parameter() 
         : type(0)
     {
     }
@@ -125,18 +126,18 @@ public:
     static Parameter parse_from_string(const std::string& value);
 
     // 0=null 1=b 2=i 3=f 4=s 5=ai 6=af 7=as 8=others
-    int type;
+    int type;                   // type of value
 
     // value
-    bool b;
-    int i;
-    float f;
-    std::vector<int> ai;
-    std::vector<float> af;
+    bool b;                     // bool
+    int i;                      // integer
+    float f;                    // float
+    std::vector<int> ai;        // a vector of integers
+    std::vector<float> af;      // a vector of floats
 
     // keep std::string typed member the last for cross cxxabi compatibility
-    std::string s;
-    std::vector<std::string> as;
+    std::string s;              // string
+    std::vector<std::string> as;// a vector of strings
 };
 
 bool operator==(const Parameter& lhs, const Parameter& rhs);
@@ -168,44 +169,50 @@ bool operator==(const Attribute& lhs, const Attribute& rhs);
 Attribute operator+(const Attribute& a, const Attribute& b);
 
 class Operator;
+
+// operand contain the data type, data shape, name and the parameters of the operand
+// no read data?
 class Operand
 {
 public:
     void remove_consumer(const Operator* c);
 
-    Operator* producer;
-    std::vector<Operator*> consumers;
+    Operator* producer;                     // the operator that produce this operand
+    std::vector<Operator*> consumers;       // the operators that use this operand
 
     // 0=null 1=f32 2=f64 3=f16 4=i32 5=i64 6=i16 7=i8 8=u8 9=bool 10=cp64 11=cp128 12=cp32
     int type;
-    std::vector<int> shape;
+    std::vector<int> shape;                 // shape of the operand
 
     // keep std::string typed member the last for cross cxxabi compatibility
-    std::string name;
+    std::string name;                       // name of the operand
 
-    std::map<std::string, Parameter> params;
+    std::map<std::string, Parameter> params;// parameter of the operand
 
 };
 
+// operator contain input and output operands
+// operator parameter information and weight value
 class Operator
 {
 public:
-    std::vector<Operand*> inputs;
-    std::vector<Operand*> outputs;
+    std::vector<Operand*> inputs;       // operands input for this operator
+    std::vector<Operand*> outputs;      // operands output for this operator 
 
     // keep std::string typed member the last for cross cxxabi compatibility
     std::string type;
     std::string name;
 
     std::vector<std::string> inputnames;
-    std::map<std::string, Parameter> params;
-    std::map<std::string, Attribute> attrs;
+    std::map<std::string, Parameter> params;    // parameters of operator; for conv: stride, padding, kernel size
+    std::map<std::string, Attribute> attrs;     // weight and bias of operator?
 };
 
+// model graph class
 class Graph
 {
 public:
-    Graph();
+    Graph();    // default constructor
     ~Graph();
 
     int load(const std::string& parampath, const std::string& binpath);
@@ -230,12 +237,12 @@ public:
     Operand* get_operand(const std::string& name);
     const Operand* get_operand(const std::string& name) const;
 
-    std::vector<Operator*> ops;
-    std::vector<Operand*> operands;
+    std::vector<Operator*> ops;         // vector of operators 
+    std::vector<Operand*> operands;     // vector of operands  
 
 private:
-    Graph(const Graph& rhs);
-    Graph& operator=(const Graph& rhs);
+    Graph(const Graph& rhs);            // disable copy constructor
+    Graph& operator=(const Graph& rhs); // disable copy disable operator
 };
 
 } // namespace pnnx
