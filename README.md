@@ -27,9 +27,9 @@ Learn about pnnx(`ir.cpp`, `ir.hpp`. Created by nihui dalao). Learn about model 
 
 Learn about kuiperinfer Runtime representation of graph, operators and operands structures. 
 
-By the way, finished CS6290 Project2 yesterday.:guitar: (4/7/2024)
+By the way, finished CS6290 Project2 yesterday.(4/7/2024)
 
-
+:guitar: :guitar: :guitar: 
 
 Finish `RuntimeGraph::InitGraphParams();`
 
