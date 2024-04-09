@@ -203,8 +203,7 @@ bool RuntimeGraph::Init() {
   return true;
 }
 
-void RuntimeGraph::Build(const std::string &input_name,
-                         const std::string &output_name) {
+void RuntimeGraph::Build(const std::string &input_name, const std::string &output_name) {
   if (graph_state_ == GraphState::Complete) {
     LOG(INFO) << "Model has been built already!";
     return;
@@ -215,10 +214,8 @@ void RuntimeGraph::Build(const std::string &input_name,
     LOG_IF(FATAL, !init_graph) << "Init graph failed!";
   }
 
-  CHECK(graph_state_ >= GraphState::NeedBuild)
-      << "Graph status error, current state is " << int(graph_state_);
-  LOG_IF(FATAL, this->operators_.empty())
-      << "Graph operators is empty, may be no init";
+  CHECK(graph_state_ >= GraphState::NeedBuild) << "Graph status error, current state is " << int(graph_state_);
+  LOG_IF(FATAL, this->operators_.empty()) << "Graph operators is empty, may be no init";
 
   // 构建图关系
   for (const auto &current_op : this->operators_) {
@@ -245,21 +242,19 @@ void RuntimeGraph::Build(const std::string &input_name,
     }
   }
 
-  CHECK(topo_operators_.size() == operators_.size())
-      << "Build wrong topo queue";
+  CHECK(topo_operators_.size() == operators_.size()) << "Build wrong topo queue";
   std::reverse(topo_operators_.begin(), topo_operators_.end());
 
   graph_state_ = GraphState::Complete;
   input_name_ = input_name;
   output_name_ = output_name;
   if (graph_ != nullptr) {
-    graph_.reset();
+    graph_.reset();         // reset graph_, don't use this. graph only used to build Runtime_Graph;
     graph_ = nullptr;
   }
 }
-
-void RuntimeGraph::ReverseTopo(
-    const std::shared_ptr<RuntimeOperator> &root_op) {
+// add this function to build topo graph path
+void RuntimeGraph::ReverseTopo(const std::shared_ptr<RuntimeOperator> &root_op) {
   CHECK(root_op != nullptr) << "current operator is nullptr";
   root_op->has_forward = true;
   const auto &next_ops = root_op->output_operators;

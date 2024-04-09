@@ -73,6 +73,7 @@ void RuntimeOperatorUtils::InitOperatorInput(
   }
 }
 
+// Allocate memory for operator otput;
 void RuntimeOperatorUtils::InitOperatorOutput(
     const std::vector<pnnx::Operator *> &pnnx_operators,
     const std::vector<std::shared_ptr<RuntimeOperator>> &operators) {

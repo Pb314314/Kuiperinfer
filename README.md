@@ -1,4 +1,4 @@
-## Kuiperinfer : a inference framework for learners
+## Kuiperinfer : an inference framework for learners
 
 ## Environment Setting
 
@@ -39,6 +39,10 @@ Modify the `Runtime_Operator.params` from `std::mapping<std::string, Runtime_Par
 :smiley::smiley::smiley::smiley::smiley::smiley::smiley:
 
 ### Lab4
+
+Review Lab3, understand `Runtime_Operator` better.
+
+Start Lab4, learn about graph topology path and operator output memory allocation.
 
 ### Lab5
 

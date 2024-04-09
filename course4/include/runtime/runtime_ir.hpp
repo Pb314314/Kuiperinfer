@@ -68,18 +68,14 @@ private:
    * @param inputs pnnx中的输入操作数
    * @param runtime_operator 计算图节点
    */
-  static void InitGraphOperatorsInput(
-      const std::vector<pnnx::Operand *> &inputs,
-      const std::shared_ptr<RuntimeOperator> &runtime_operator);
+  static void InitGraphOperatorsInput(const std::vector<pnnx::Operand *> &inputs, const std::shared_ptr<RuntimeOperator> &runtime_operator);
 
   /**
    * 初始化kuiper infer计算图节点中的输出操作数
    * @param outputs pnnx中的输出操作数
    * @param runtime_operator 计算图节点
    */
-  static void InitGraphOperatorsOutput(
-      const std::vector<pnnx::Operand *> &outputs,
-      const std::shared_ptr<RuntimeOperator> &runtime_operator);
+  static void InitGraphOperatorsOutput(const std::vector<pnnx::Operand *> &outputs, const std::shared_ptr<RuntimeOperator> &runtime_operator);
 
   /**
    * 初始化kuiper infer计算图中的节点属性
@@ -87,8 +83,7 @@ private:
    * @param runtime_operator 计算图节点
    */
   static void
-  InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &attrs,
-                 const std::shared_ptr<RuntimeOperator> &runtime_operator);
+  InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &attrs, const std::shared_ptr<RuntimeOperator> &runtime_operator);
 
   /**
    * 初始化kuiper infer计算图中的节点参数
@@ -96,8 +91,7 @@ private:
    * @param runtime_operator 计算图节点
    */
   static void
-  InitGraphParams(const std::map<std::string, pnnx::Parameter> &params,
-                  const std::shared_ptr<RuntimeOperator> &runtime_operator);
+  InitGraphParams(const std::map<std::string, pnnx::Parameter> &params, const std::shared_ptr<RuntimeOperator> &runtime_operator);
 
   void ReverseTopo(const std::shared_ptr<RuntimeOperator> &root_op);
 

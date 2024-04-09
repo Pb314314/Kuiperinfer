@@ -25,6 +25,7 @@ namespace kuiper_infer {
     const std::string &RuntimeGraph::bin_path() const { return this->bin_path_; }
 
     bool RuntimeGraph::Init() {
+        // need to set bin_path and param_path before init
         if (this->bin_path_.empty() || this->param_path_.empty()) {
             LOG(ERROR) << "The bin path or param path is empty";
             return false;
@@ -46,55 +47,54 @@ namespace kuiper_infer {
 
         this->operators_.clear();
         this->operators_maps_.clear();
-        for (const pnnx::Operator *op: operators) {
+        for (const pnnx::Operator *op: operators) {         // every operator in graph operators.
             if (!op) {
                 LOG(ERROR) << "Meet the empty node";
                 continue;
             } else {
-                std::shared_ptr<RuntimeOperator> runtime_operator = std::make_shared<RuntimeOperator>();
+                std::shared_ptr<RuntimeOperator> runtime_operator = std::make_shared<RuntimeOperator>();    // initialize a new run_time operator
                 // initialize operator name
                 runtime_operator->name = op->name;
                 runtime_operator->type = op->type;
 
-                // initialize the input operator of current operator, using op->inputs
-                const std::vector<pnnx::Operand *> &inputs = op->inputs;
+                // initialize the input operand of current operator, using op->inputs
+                const std::vector<pnnx::Operand *> &inputs = op->inputs;        // all input operand for current operator
                 if (!inputs.empty()) {
-                    InitGraphOperatorsInput(inputs, runtime_operator);
+                    InitGraphOperatorsInput(inputs, runtime_operator);          // set input operand vector and mapping for current Runtime_operator 
                 }
 
                 // Initialize the output operator of current operator, using op->outputs
-                const std::vector<pnnx::Operand *> &outputs = op->outputs;
+                const std::vector<pnnx::Operand *> &outputs = op->outputs;      // all output operand for current operator
                 if (!outputs.empty()) {
                     InitGraphOperatorsOutput(outputs, runtime_operator);
                 }
 
                 // Initialize the attribute of current operator, using op->attrs
-                const std::map<std::string, pnnx::Attribute> &attrs = op->attrs;
+                const std::map<std::string, pnnx::Attribute> &attrs = op->attrs;// all attribute for current operator
                 if (!attrs.empty()) {
-                    InitGraphAttrs(attrs, runtime_operator);
+                    InitGraphAttrs(attrs, runtime_operator);                    // set attribute mapping for all attribute of current operator ({name, runtime_attribute})
                 }
 
-                // Initialize the parameter  of current operator, using op->params
-                const std::map<std::string, pnnx::Parameter> &params = op->params;
+                // Initialize the parameter of current operator, using op->params
+                const std::map<std::string, pnnx::Parameter> &params = op->params;// all parameter for current operator
                 if (!params.empty()) {
-                    InitGraphParams(params, runtime_operator);
+                    InitGraphParams(params, runtime_operator);                  // set parameter mapping for all parameter of current operator({name, runtime_parameter})
                 }
                 this->operators_.push_back(runtime_operator);
                 this->operators_maps_.insert({runtime_operator->name, runtime_operator});
             }
         }
-
         return true;
     }
+
     // initialize the RuntimeOperand input operators
     void RuntimeGraph::InitGraphOperatorsInput(const std::vector<pnnx::Operand *> &inputs, const std::shared_ptr<RuntimeOperator> &runtime_operator) {
         for (const pnnx::Operand *input: inputs) {
             if (!input) {
                 continue;
             }
-            const pnnx::Operator *producer = input->producer;
-            std::shared_ptr<RuntimeOperand> runtime_operand =
-                    std::make_shared<RuntimeOperand>();
+            const pnnx::Operator *producer = input->producer;       
+            std::shared_ptr<RuntimeOperand> runtime_operand = std::make_shared<RuntimeOperand>();
             runtime_operand->name = producer->name;
             runtime_operand->shapes = input->shape;
 
@@ -123,7 +123,7 @@ namespace kuiper_infer {
             }
             const auto &consumers = output->consumers;
             for (const auto &c: consumers) {
-                runtime_operator->output_names.push_back(c->name);
+                runtime_operator->output_names.push_back(c->name);      // just push output operands names into output_names
             }
         }
     }
@@ -253,7 +253,7 @@ namespace kuiper_infer {
     void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &attrs,const std::shared_ptr<RuntimeOperator> &runtime_operator) {
         for (const auto &[name, attr]: attrs) {
             switch (attr.type) {
-                case 1: {
+                case 1: {       // float type data
                     std::shared_ptr<RuntimeAttribute> runtime_attribute =std::make_shared<RuntimeAttribute>();
                     runtime_attribute->type = RuntimeDataType::kTypeFloat32;
                     runtime_attribute->weight_data = attr.data;

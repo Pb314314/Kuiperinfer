@@ -36,7 +36,7 @@ std::vector<T> RuntimeAttribute::get(bool need_clear_weight) {
   CHECK(type != RuntimeDataType::kTypeUnknown);
   std::vector<T> weights;
   switch (type) {
-    case RuntimeDataType::kTypeFloat32: {  // load float value into vector
+    case RuntimeDataType::kTypeFloat32: {  // load float value into vector(only use float type)
       const bool is_float = std::is_same<T, float>::value;  // true if(T == float) else false;
       CHECK_EQ(is_float, true);
       const uint32_t float_size = sizeof(float);

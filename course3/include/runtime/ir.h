@@ -197,7 +197,7 @@ class Operator
 {
 public:
     std::vector<Operand*> inputs;       // operands input for this operator
-    std::vector<Operand*> outputs;      // operands output for this operator 
+    std::vector<Operand*> outputs;      // operands output for this operator
 
     // keep std::string typed member the last for cross cxxabi compatibility
     std::string type;

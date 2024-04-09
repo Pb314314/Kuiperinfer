@@ -29,7 +29,7 @@ struct RuntimeOperator {
   std::string type;      // type of operator: Convolution, Relu
   std::shared_ptr<Layer> layer;  // layer info
 
-  std::vector<std::string> output_names;  /// output name
+  std::vector<std::string> output_names;  /// all output operands name
   std::shared_ptr<RuntimeOperand> output_operands;  // output operands of current operator
   // input operands mapping 
   std::map<std::string, std::shared_ptr<RuntimeOperand>> input_operands;  
