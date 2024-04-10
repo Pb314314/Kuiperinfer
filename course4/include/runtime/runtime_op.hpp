@@ -41,24 +41,25 @@ class Layer;
 struct RuntimeOperator {
   virtual ~RuntimeOperator();
 
-  bool has_forward = false;
-  std::string name;      /// 计算节点的名称
-  std::string type;      /// 计算节点的类型
-  std::shared_ptr<Layer> layer;  /// 节点对应的计算Layer
+  bool has_forward = false;         // indicate whether this operator has forwarded
+  std::string name;      /// operator name
+  std::string type;      /// type of operator: Convolution, Relu...(pnnx.Input for root operator)
+  std::shared_ptr<Layer> layer;  /// layer info
 
-  std::vector<std::string> output_names;  /// 节点的输出节点名称
+  // input information(Initialize in InitGraphOperatorsInput)
+  // RuntimeOperand initialize in in InitOperatorInput
+  std::vector<std::shared_ptr<RuntimeOperand>> input_operands_seq;  // input operands' vector
+  std::map<std::string, std::shared_ptr<RuntimeOperand>> input_operands;  // mapping of input operands
+  
+  // Initialize in InitGraphOperatorsOutput
+  std::vector<std::string> output_names;  // all output operands name
+  // Initialize in Build
   std::shared_ptr<RuntimeOperand> output_operands;  /// 节点的输出操作数
-
-  std::map<std::string, std::shared_ptr<RuntimeOperand>>
-      input_operands;  /// 节点的输入操作数
-  std::vector<std::shared_ptr<RuntimeOperand>>
-      input_operands_seq;  /// 节点的输入操作数，顺序排列
-  std::map<std::string, std::shared_ptr<RuntimeOperator>>
-      output_operators;  /// 输出节点的名字和节点对应
-
+  std::map<std::string, std::shared_ptr<RuntimeOperator>> output_operators;  /// 输出节点的名字和节点对应
+  // Initialize in InitGraphParams
   std::map<std::string, RuntimeParameter*> params;  /// 算子的参数信息
-  std::map<std::string, std::shared_ptr<RuntimeAttribute>>
-      attribute;  /// 算子的属性信息，内含权重信息
+  // Initialize in InitGraphAttrs
+  std::map<std::string, std::shared_ptr<RuntimeAttribute>> attribute;  /// 算子的属性信息，内含权重信息
 };
 
 class RuntimeOperatorUtils {
@@ -68,6 +69,7 @@ public:
    * 如果图是第二次以上运行，则检查输入operand的形状和operand中张量的形状是否匹配
    * @param operators 计算图中的计算节点
    */
+  // set input operand for every operator in operators.
   static void InitOperatorInput(
       const std::vector<std::shared_ptr<RuntimeOperator>>& operators);
 
@@ -77,6 +79,7 @@ public:
    * @param pnnx_operators pnnx图节点
    * @param operators KuiperInfer计算图中的计算节点
    */
+  // set output operand for every operator in vector of operators using pnnx_operators information
   static void InitOperatorOutput(
       const std::vector<pnnx::Operator*>& pnnx_operators,
       const std::vector<std::shared_ptr<RuntimeOperator>>& operators);

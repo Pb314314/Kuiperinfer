@@ -190,8 +190,8 @@ public:
 class Operator
 {
 public:
-    std::vector<Operand*> inputs;
-    std::vector<Operand*> outputs;
+    std::vector<Operand*> inputs;     // input operands for operator
+    std::vector<Operand*> outputs;    // output operand for operator, only suppor one output operand
 
     // keep std::string typed member the last for cross cxxabi compatibility
     std::string type;

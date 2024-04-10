@@ -29,19 +29,16 @@ struct RuntimeOperator {
   std::string type;      // type of operator: Convolution, Relu
   std::shared_ptr<Layer> layer;  // layer info
 
-  std::vector<std::string> output_names;  /// all output operands name
-  std::shared_ptr<RuntimeOperand> output_operands;  // output operands of current operator
-  // input operands mapping 
-  std::map<std::string, std::shared_ptr<RuntimeOperand>> input_operands;  
-  // a vector of input operands
+  // information of all input operands
+  std::map<std::string, std::shared_ptr<RuntimeOperand>> input_operands;  // input operands mapping 
   std::vector<std::shared_ptr<RuntimeOperand>> input_operands_seq;  // vector of input operands
-  // a mapping of output operators
-
+  
+  // information of one output operand and several output operators
+  std::vector<std::string> output_names;  // all output operators' names
   std::map<std::string, std::shared_ptr<RuntimeOperator>> output_operators;  // output operators mapping 
+  std::shared_ptr<RuntimeOperand> output_operands;  // one output operand of current operator
 
-  // parameter info: contain parameter information
-  //std::map<std::string, RuntimeParameter*> params;  
-  // pb modify this params to use shared_pointer
+  // parameter info: contain parameter information, pb modify this params to use shared_pointer
   std::map<std::string, std::shared_ptr<RuntimeParameter>> params;
   // attribute info: contain all the weight information 
   std::map<std::string, std::shared_ptr<RuntimeAttribute>> attribute;  // attribute info

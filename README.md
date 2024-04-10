@@ -13,6 +13,7 @@ Use the armadillo library to compute arma::fmat matrix.
 A very easy lab, just use easy operation and arma::exp API.(3/30/2024)
 
 ### Lab2
+
 Understand Tensor class.(Use template and Armadillo and design user interface. Implemented the float template specialization)
     
 Use Armadillo to store the fcube in class and understand the class functions.

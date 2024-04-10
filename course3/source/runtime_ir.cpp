@@ -62,12 +62,12 @@ namespace kuiper_infer {
                 if (!inputs.empty()) {
                     InitGraphOperatorsInput(inputs, runtime_operator);          // set input operand vector and mapping for current Runtime_operator 
                 }
-
                 // Initialize the output operator of current operator, using op->outputs
                 const std::vector<pnnx::Operand *> &outputs = op->outputs;      // all output operand for current operator
                 if (!outputs.empty()) {
                     InitGraphOperatorsOutput(outputs, runtime_operator);
                 }
+                // Just set all operators' name vector, not set the output_operators vector, not set the output_operands
 
                 // Initialize the attribute of current operator, using op->attrs
                 const std::map<std::string, pnnx::Attribute> &attrs = op->attrs;// all attribute for current operator
@@ -117,13 +117,13 @@ namespace kuiper_infer {
     }
     // Initialize the output operators
     void RuntimeGraph::InitGraphOperatorsOutput(const std::vector<pnnx::Operand *> &outputs,const std::shared_ptr<RuntimeOperator> &runtime_operator) {
-        for (const pnnx::Operand *output: outputs) {
+        for (const pnnx::Operand *output: outputs) {    // every output operand
             if (!output) {
                 continue;
             }
-            const auto &consumers = output->consumers;
+            const auto &consumers = output->consumers;  // every output operand have serveral operator consumers
             for (const auto &c: consumers) {
-                runtime_operator->output_names.push_back(c->name);      // just push output operands names into output_names
+                runtime_operator->output_names.push_back(c->name);      // just push output operator consumers' names into output_names
             }
         }
     }
