@@ -43,7 +43,13 @@ Modify the `Runtime_Operator.params` from `std::mapping<std::string, Runtime_Par
 
 Review Lab3, understand `Runtime_Operator` better.
 
-Start Lab4, learn about graph topology path and operator output memory allocation.
+Start Lab4, learn about graph topology path and operator output memory allocation.(4/9/2024)
+
+ALmost finish Lab4. Understand RuntimeGraph::Build and RuntimeGraph::ReverseTopo.
+
+Deeper understand the RuntimeGraph init process and RuntimeOperator class. (4/10/2024)
+
+:musical_note::musical_note::musical_note::musical_note::musical_note:
 
 ### Lab5
 
