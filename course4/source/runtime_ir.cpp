@@ -5,6 +5,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <queue>
 
 namespace kuiper_infer {
 RuntimeGraph::RuntimeGraph(std::string param_path, std::string bin_path)
@@ -121,12 +122,14 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
   topo_operators_.clear();
   for (const auto &[_, op] : operators_maps_) {   // every operator in operator mapping
     if (op->type == "pnnx.Input" && !op->has_forward) {     // find the root operator(type == pnnx.Input) as recursive start operator 
-      this->ReverseTopo(op);
+      //this->ReverseTopo(op);    // comment this for Pb_Topo
+      this->Pb_Topo(op);
     }
   }
 
   CHECK(topo_operators_.size() == operators_.size()) << "Build wrong topo queue";
-  std::reverse(topo_operators_.begin(), topo_operators_.end());     // reverse the topology path
+  // comment this when Pb_Topo
+  //std::reverse(topo_operators_.begin(), topo_operators_.end());     // reverse the topology path
 
   graph_state_ = GraphState::Complete;      // finish graph build, set state
   input_name_ = input_name;
@@ -138,6 +141,7 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
 }
 
 // Recursively go deep through root_op and build the topo path
+
 void RuntimeGraph::ReverseTopo(const std::shared_ptr<RuntimeOperator> &root_op) {
   CHECK(root_op != nullptr) << "current operator is nullptr";
   root_op->has_forward = true;                          // set 
@@ -155,6 +159,27 @@ void RuntimeGraph::ReverseTopo(const std::shared_ptr<RuntimeOperator> &root_op) 
   this->topo_operators_.push_back(root_op);     // push back this operator into topo path.(Reversed)
 }
 
+void RuntimeGraph::Pb_Topo(const std::shared_ptr<RuntimeOperator> &root_op){
+  CHECK(root_op != nullptr) << "current operator is nullptr";
+  root_op->has_forward = true;
+  std::queue<std::shared_ptr<RuntimeOperator>> q;
+  q.push(root_op);
+  while(!q.empty()){
+    std::shared_ptr<RuntimeOperator> op_ptr = q.front();
+    const auto &next_ops = op_ptr->output_operators;
+    for(const auto &[_, op]: next_ops){
+      if(op != nullptr){
+        if(!op->has_forward){
+          op->has_forward = true;   // set true when insert into queue
+          q.push(op);
+        }
+      }
+    }
+    q.pop();
+    this->topo_operators_.push_back(op_ptr);
+  }
+}
+
 // Initialize input_operands(mapping) and input_operands_seq(vector) for every operator in graph
 void RuntimeGraph::InitGraphOperatorsInput(const std::vector<pnnx::Operand *> &inputs, const std::shared_ptr<RuntimeOperator> &runtime_operator) {
   for (const pnnx::Operand *input : inputs) {
@@ -164,10 +189,10 @@ void RuntimeGraph::InitGraphOperatorsInput(const std::vector<pnnx::Operand *> &i
     const pnnx::Operator *producer = input->producer;
     std::shared_ptr<RuntimeOperand> runtime_operand =
         std::make_shared<RuntimeOperand>();
-    runtime_operand->name = producer->name;
-    runtime_operand->shapes = input->shape;
+    runtime_operand->name = producer->name;     // set operand name
+    runtime_operand->shapes = input->shape;     // set operand shapes
 
-    switch (input->type) {
+    switch (input->type) {                      // set operand type
     case 1: {
       runtime_operand->type = RuntimeDataType::kTypeFloat32;
       break;
@@ -180,8 +205,8 @@ void RuntimeGraph::InitGraphOperatorsInput(const std::vector<pnnx::Operand *> &i
       LOG(FATAL) << "Unknown input operand type: " << input->type;
     }
     }
-    runtime_operator->input_operands.insert({producer->name, runtime_operand});
-    runtime_operator->input_operands_seq.push_back(runtime_operand);
+    runtime_operator->input_operands.insert({producer->name, runtime_operand});   // insert operand into mapping
+    runtime_operator->input_operands_seq.push_back(runtime_operand);              // insert operand into vector
   }
 }
 // Initialize the output_names(string vector) for every operator in graph

@@ -95,6 +95,8 @@ private:
 
   void ReverseTopo(const std::shared_ptr<RuntimeOperator> &root_op);
 
+  void Pb_Topo(const std::shared_ptr<RuntimeOperator> &root_op);
+
 private:
   enum class GraphState {
     NeedInit = -2,

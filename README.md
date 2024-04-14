@@ -51,6 +51,12 @@ Deeper understand the RuntimeGraph init process and RuntimeOperator class. (4/10
 
 :musical_note::musical_note::musical_note::musical_note::musical_note:
 
+Finished Lab4, implement the Pb_Topo, using queue instead of recursion to get Topology path. 
+
+By the way, finished CSE6242 HW4.....(4/13/2024)
+
+:sleeping::sleeping::sleeping:
+
 ### Lab5
 
 ### Lab6

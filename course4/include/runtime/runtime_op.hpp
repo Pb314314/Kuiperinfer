@@ -41,7 +41,7 @@ class Layer;
 struct RuntimeOperator {
   virtual ~RuntimeOperator();
 
-  bool has_forward = false;         // indicate whether this operator has forwarded
+  bool has_forward = false;         // indicate whether this operator has been forwarded
   std::string name;      /// operator name
   std::string type;      /// type of operator: Convolution, Relu...(pnnx.Input for root operator)
   std::shared_ptr<Layer> layer;  /// layer info
@@ -56,6 +56,7 @@ struct RuntimeOperator {
   // Initialize in Build
   std::shared_ptr<RuntimeOperand> output_operands;  /// 节点的输出操作数
   std::map<std::string, std::shared_ptr<RuntimeOperator>> output_operators;  /// 输出节点的名字和节点对应
+  
   // Initialize in InitGraphParams
   std::map<std::string, RuntimeParameter*> params;  /// 算子的参数信息
   // Initialize in InitGraphAttrs
