@@ -24,9 +24,8 @@
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
-InferStatus ReluLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
-    std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
+  // rewrite the forward function to compute the output
+InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs, std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the relu layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -81,14 +80,14 @@ InferStatus ReluLayer::Forward(
   }
   return InferStatus::kInferSuccess;
 }
-ParseParameterAttrStatus ReluLayer::GetInstance(
-    const std::shared_ptr<RuntimeOperator> &op,
-    std::shared_ptr<Layer> &relu_layer) {
+
+ParseParameterAttrStatus ReluLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op, std::shared_ptr<Layer> &relu_layer) {
   CHECK(op != nullptr) << "Relu operator is nullptr";
   relu_layer = std::make_shared<ReluLayer>();
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-// 使用工具类注册算子
+// This line will register the relu to global registry before main function start?? How this is possible?
+
 LayerRegistererWrapper kReluGetInstance("nn.ReLU", ReluLayer::GetInstance);
 }  // namespace kuiper_infer

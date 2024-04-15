@@ -58,6 +58,15 @@ By the way, finished CSE6242 HW4.....(4/13/2024)
 :sleeping::sleeping::sleeping:
 
 ### Lab5
+Start Lab5, get to know `Layer` and `Layer_factory`. (4/14/2024)
+
+Half understand the Lab5. Understand **Singular Pattern** in C++.
+
+Use **static in class** which can be used by all instances of that class, which is a implementation of **thread-safe singular pattern**.
+
+Use gdb to test program.(cmake -DCMAKE_BUILD_TYPE=Debug ..)
+
+Understand the process of register operator, prepare input and compute output.(4/15/2024)
 
 ### Lab6
 

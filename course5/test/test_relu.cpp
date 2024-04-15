@@ -10,7 +10,7 @@ static LayerRegisterer::CreateRegistry *RegistryGlobal() {
   CHECK(kRegistry != nullptr) << "Global layer register init failed!";
   return kRegistry;
 }
-
+// Understand this: use singleton implementation to build global unique registry 
 TEST(test_registry, registry1) {
   using namespace kuiper_infer;
   LayerRegisterer::CreateRegistry *registry1 = RegistryGlobal();
@@ -23,10 +23,7 @@ TEST(test_registry, registry1) {
   ASSERT_EQ(registry1, registry2);
 }
 
-ParseParameterAttrStatus MyTestCreator(
-    const std::shared_ptr<RuntimeOperator> &op,
-    std::shared_ptr<Layer> &layer) {
-
+ParseParameterAttrStatus MyTestCreator(const std::shared_ptr<RuntimeOperator> &op,std::shared_ptr<Layer> &layer) {
   layer = std::make_shared<Layer>("test_layer");
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
@@ -36,6 +33,7 @@ TEST(test_registry, registry2) {
   LayerRegisterer::CreateRegistry registry1 = LayerRegisterer::Registry();
   LayerRegisterer::CreateRegistry registry2 = LayerRegisterer::Registry();
   ASSERT_EQ(registry1, registry2);
+  // register creator to Registry
   LayerRegisterer::RegisterCreator("test_type", MyTestCreator);
   LayerRegisterer::CreateRegistry registry3 = LayerRegisterer::Registry();
   ASSERT_EQ(registry3.size(), 2);
@@ -64,10 +62,14 @@ TEST(test_registry, create_layer_util) {
 }
 
 TEST(test_registry, create_layer_reluforward) {
+  // allocata a RuntimeOperator
   std::shared_ptr<RuntimeOperator> op = std::make_shared<RuntimeOperator>();
+  // set the RuntimeOperator type(consistent with layer name)
   op->type = "nn.ReLU";
+  // declare a layer
   std::shared_ptr<Layer> layer;
   ASSERT_EQ(layer, nullptr);
+  // Use CreateLayer to initialize a layer by get Creator function in Registry mapping 
   layer = LayerRegisterer::CreateLayer(op);
   ASSERT_NE(layer, nullptr);
 
@@ -80,6 +82,8 @@ TEST(test_registry, create_layer_reluforward) {
   std::vector<sftensor> inputs(1);
   std::vector<sftensor> outputs(1);
   inputs.at(0) = input_tensor;
+
+  // layer->Forward to compute the outputs tensor
   layer->Forward(inputs, outputs);
 
   for (const auto &output : outputs) {

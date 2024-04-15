@@ -46,9 +46,7 @@ class Layer {
    * @param outputs 层的输出
    * @return 执行的状态
    */
-  virtual InferStatus Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs);
+  virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs, std::vector<std::shared_ptr<Tensor<float>>>& outputs);
 
   /**
    * Layer的执行函数
@@ -70,21 +68,19 @@ class Layer {
   virtual const std::vector<std::shared_ptr<Tensor<float>>>& bias() const;
 
   /**
-   * 设置Layer的权重
+   * set weight of layer
    * @param weights 权重
    */
-  virtual void set_weights(
-      const std::vector<std::shared_ptr<Tensor<float>>>& weights);
+  virtual void set_weights(const std::vector<std::shared_ptr<Tensor<float>>>& weights);
 
   /**
-   * 设置Layer的偏移量
+   * set bias of layer
    * @param bias 偏移量
    */
-  virtual void set_bias(
-      const std::vector<std::shared_ptr<Tensor<float>>>& bias);
+  virtual void set_bias(const std::vector<std::shared_ptr<Tensor<float>>>& bias);
 
   /**
-   * 设置Layer的权重
+   * set weight of layer
    * @param weights 权重
    */
   virtual void set_weights(const std::vector<float>& weights);
@@ -96,17 +92,16 @@ class Layer {
   virtual void set_bias(const std::vector<float>& bias);
 
   /**
-   * 返回层的名称
+   * return the name of current layer
    * @return 层的名称
    */
   virtual const std::string& layer_name() const { return this->layer_name_; }
 
   /**
-   * 设置层的执行算子
+   * bind layer with runtimeoperator
    * @param runtime_operator 该层的执行算子
    */
-  void set_runtime_operator(
-      const std::shared_ptr<RuntimeOperator>& runtime_operator);
+  void set_runtime_operator(const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
  protected:
   std::weak_ptr<RuntimeOperator> runtime_operator_;
