@@ -24,6 +24,7 @@ fi
 if docker ps -a --format '{{.Names}}' | grep -Eq "^kuiperinfer$"; then
     # Restart the existing container
     docker restart kuiperinfer
+    docker exec -it kuiperinfer /bin/bash
 else
     # Run a new container
     docker run --name kuiperinfer -it -v "$workdir:/home/Kuiperinfer" "$image" /bin/bash
