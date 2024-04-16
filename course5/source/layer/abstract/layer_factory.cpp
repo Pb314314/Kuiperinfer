@@ -38,11 +38,15 @@ void LayerRegisterer::RegisterCreator(const std::string& layer_type, const Creat
 LayerRegisterer::CreateRegistry& LayerRegisterer::Registry() {
   // this is static pointer. static variable only initialize once. 
   // static variable is thread safe(if multiple thread call this function, this static variable only initialize once)
+  // local static variable, initialize at first use
+  // for local static variable, its memory is allocated when program starts(variable isn't constructed yet)
+  // Initialization of local static variable occurs the first used.
   static CreateRegistry* kRegistry = new CreateRegistry();
   CHECK(kRegistry != nullptr) << "Global layer register init failed!";
   return *kRegistry;
 }
-
+// input operator, use operator->type to find creator function in Registry
+// Create and  initialize the layer use creator and return layer
 std::shared_ptr<Layer> LayerRegisterer::CreateLayer(const std::shared_ptr<RuntimeOperator>& op) {
   CreateRegistry& registry = Registry();
   const std::string& layer_type = op->type;

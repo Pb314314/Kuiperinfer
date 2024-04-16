@@ -41,15 +41,13 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     const sftensor &input_data = inputs.at(i);
     const sftensor &output_data = outputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR)
-          << "The input tensor array in the relu layer has an empty tensor "
-          << i << " th";
+      LOG(ERROR) << "The input tensor array in the relu layer has an empty tensor " << i << " th";
       return InferStatus::kInferFailedInputEmpty;
     }
     if (output_data != nullptr && !output_data->empty()) {
       if (input_data->shapes() != output_data->shapes()) {
         LOG(ERROR) << "The input and output tensor shapes of the relu "
-                      "layer do not match "
+                    "layer do not match "
                    << i << " th";
         return InferStatus::kInferFailedInputOutSizeMatchError;
       }
@@ -80,7 +78,7 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
   }
   return InferStatus::kInferSuccess;
 }
-
+// Creator function for Relu
 ParseParameterAttrStatus ReluLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op, std::shared_ptr<Layer> &relu_layer) {
   CHECK(op != nullptr) << "Relu operator is nullptr";
   relu_layer = std::make_shared<ReluLayer>();
@@ -88,6 +86,6 @@ ParseParameterAttrStatus ReluLayer::GetInstance(const std::shared_ptr<RuntimeOpe
 }
 
 // This line will register the relu to global registry before main function start?? How this is possible?
-
+// This is a global variable, which is initialized before program start
 LayerRegistererWrapper kReluGetInstance("nn.ReLU", ReluLayer::GetInstance);
 }  // namespace kuiper_infer

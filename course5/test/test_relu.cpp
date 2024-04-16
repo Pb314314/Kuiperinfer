@@ -81,9 +81,9 @@ TEST(test_registry, create_layer_reluforward) {
 
   std::vector<sftensor> inputs(1);
   std::vector<sftensor> outputs(1);
-  inputs.at(0) = input_tensor;
+  inputs.at(0) = input_tensor;    // set the first element of input vector.
 
-  // layer->Forward to compute the outputs tensor
+  // directly use layer->Forward(input_t, output_t) to compute the outputs tensor
   layer->Forward(inputs, outputs);
 
   for (const auto &output : outputs) {
