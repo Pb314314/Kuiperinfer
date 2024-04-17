@@ -22,12 +22,12 @@ TEST(test_registry, create_layer_sigmoid_forward) {
   ASSERT_EQ(layer, nullptr);
   layer = LayerRegisterer::CreateLayer(op);
   ASSERT_NE(layer, nullptr);
-
+  // create input tensor
   sftensor input_tensor = std::make_shared<ftensor>(3, 4, 4);
-  input_tensor->Rand();
+  input_tensor->Rand();   // Random init the input tensor
 
-  std::vector<sftensor> inputs(1);
-  std::vector<sftensor> outputs(1);
+  std::vector<sftensor> inputs(1);    // 1 element input vector
+  std::vector<sftensor> outputs(1);   // 1 element input vector
   inputs.at(0) = input_tensor;
   layer->Forward(inputs, outputs);
 

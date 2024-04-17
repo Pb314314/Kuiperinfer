@@ -248,7 +248,7 @@ class Tensor<float> {
 };
 
 using ftensor = Tensor<float>;
-using sftensor = std::shared_ptr<Tensor<float>>;
+using sftensor = std::shared_ptr<Tensor<float>>;    // rename the shared_ptr<Tensor<float>>
 
 
 

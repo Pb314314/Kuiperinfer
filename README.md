@@ -72,6 +72,10 @@ Add a google test and better understand registration and layer intialization. Ad
 
 Finish registration of Sigmoid. Only thing left for Lab5 is the sigmoid forward function.(4/16/2024)
 
+Finish Sigmoid operator. (4/17/2024)
+
+:airplane::airplane::airplane:
+
 ### Lab6
 
 ### Lab7

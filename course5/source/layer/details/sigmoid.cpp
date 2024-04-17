@@ -3,10 +3,6 @@
 
 namespace kuiper_infer {
 
-InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& input, std::vector<std::shared_ptr<Tensor<float>>>& outputs){
-    return InferStatus::kInferSuccess;
-}
-
 InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs, std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the relu layer is empty";
@@ -18,11 +14,11 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
-  const uint32_t batch_size = inputs.size();
+  const uint32_t batch_size = inputs.size();        
   for (uint32_t i = 0; i < batch_size; ++i) {
-    const sftensor &input_data = inputs.at(i);
+    const sftensor &input_data = inputs.at(i);              // every input tensor
     const sftensor &output_data = outputs.at(i);
-    if (input_data == nullptr || input_data->empty()) {
+    if (input_data == nullptr || input_data->empty()) {     // check input data not empty
       LOG(ERROR) << "The input tensor array in the relu layer has an empty tensor " << i << " th";
       return InferStatus::kInferFailedInputEmpty;
     }
@@ -36,8 +32,8 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     }
   }
 
-  for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
+  for (uint32_t i = 0; i < batch_size; ++i) {       
+    const std::shared_ptr<Tensor<float>> &input = inputs.at(i);     // 3 dim tensor
     CHECK(input == nullptr || !input->empty())
             << "The input tensor array in the relu layer has an empty tensor " << i
             << " th";
@@ -47,16 +43,17 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
       DLOG(ERROR)
           << "The output tensor array in the relu layer has an empty tensor "
           << i << " th";
-      output = std::make_shared<Tensor<float>>(input->shapes());
+      output = std::make_shared<Tensor<float>>(input->shapes());        // Create output tensor
       outputs.at(i) = output;
     }
     CHECK(output->shapes() == input->shapes())
             << "The input and output tensor shapes of the relu layer do not match "
             << i << " th";
-    input->
-    for (uint32_t j = 0; j < input->size(); ++j) {
-      float value = input->index(j);
-      output->index(j) = value;
+
+    // Need to transfer every input number to sigmoid result;
+    for (uint32_t j = 0; j < input->size(); ++j) {          // compute every float in one tensor
+        float value = input->index(j);
+        output->index(j) = 1.0f / (1.0f + expf(-value));    // use expf to compute the sigmoid result;
     }
   }
   return InferStatus::kInferSuccess;
