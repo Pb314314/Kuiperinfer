@@ -68,6 +68,10 @@ Use gdb to test program.(cmake -DCMAKE_BUILD_TYPE=Debug ..)
 
 Understand the process of register operator, prepare input and compute output.(4/15/2024)
 
+Add a google test and better understand registration and layer intialization. Add `sigmoid.hpp`, `sigmoid.cpp` files. 
+
+Finish registration of Sigmoid. Only thing left for Lab5 is the sigmoid forward function.(4/16/2024)
+
 ### Lab6
 
 ### Lab7
