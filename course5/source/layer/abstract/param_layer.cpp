@@ -120,8 +120,7 @@ void ParamLayer::set_bias(const std::vector<float>& bias) {
   for (uint32_t idx = 0; idx < batch_size; ++idx) {
     const uint32_t start_offset = idx * blob_size;
     const uint32_t end_offset = start_offset + blob_size;
-    const auto& sub_values = std::vector<float>{bias.begin() + start_offset,
-                                                bias.begin() + end_offset};
+    const auto& sub_values = std::vector<float>{bias.begin() + start_offset, bias.begin() + end_offset};
     this->bias_.at(idx)->Fill(sub_values);
   }
 }

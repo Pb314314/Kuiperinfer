@@ -77,6 +77,7 @@ Finish Sigmoid operator. (4/17/2024)
 :airplane::airplane::airplane:
 
 ### Lab6
+Start Lab6. Understand the general data flow of convolution.cpp. Generally go throught the GetInstance and Forward functions. (4/19/2024)
 
 ### Lab7
 

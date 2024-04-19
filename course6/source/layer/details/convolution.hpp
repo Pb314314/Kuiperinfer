@@ -34,13 +34,9 @@ class ConvolutionLayer : public ParamLayer {
                             uint32_t stride_h, uint32_t stride_w,
                             uint32_t groups, bool use_bias = true);
 
-  static ParseParameterAttrStatus GetInstance(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& conv_layer);
+  static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator>& op, std::shared_ptr<Layer>& conv_layer);
 
-  InferStatus Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+  InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs, std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
   /**
    * 初始化kernel的im2col排布

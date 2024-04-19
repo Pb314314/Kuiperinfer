@@ -39,9 +39,7 @@ MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w,
       stride_h_(stride_h),
       stride_w_(stride_w) {}
 
-InferStatus MaxPoolingLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs, std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the max pooling layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -73,10 +71,8 @@ InferStatus MaxPoolingLayer::Forward(
     } else {
       uint32_t input_h = input_data->rows();
       uint32_t input_w = input_data->cols();
-      uint32_t output_h = uint32_t(std::floor(
-          (int(input_h) - int(pooling_h) + 2 * padding_h_) / stride_h_ + 1));
-      uint32_t output_w = uint32_t(std::floor(
-          (int(input_w) - int(pooling_w) + 2 * padding_w_) / stride_w_ + 1));
+      uint32_t output_h = uint32_t(std::floor((int(input_h) - int(pooling_h) + 2 * padding_h_) / stride_h_ + 1));
+      uint32_t output_w = uint32_t(std::floor((int(input_w) - int(pooling_w) + 2 * padding_w_) / stride_w_ + 1));
       if (!output_w || !output_h) {
         LOG(ERROR) << "The output size of tensor " << i << "th"
                    << " in the max pooling layer is less than zero";
@@ -84,8 +80,7 @@ InferStatus MaxPoolingLayer::Forward(
       } else {
         const std::shared_ptr<ftensor>& output_data = outputs.at(i);
         if (output_data != nullptr && !output_data->empty()) {
-          if (output_data->rows() != output_h ||
-              output_data->cols() != output_w) {
+          if (output_data->rows() != output_h || output_data->cols() != output_w) {
             LOG(ERROR) << "The output tensor array in the max pooling layer "
                           "has an incorrectly sized tensor "
                        << i << "th";
@@ -110,10 +105,8 @@ InferStatus MaxPoolingLayer::Forward(
 
     const uint32_t input_c = input_data->channels();
 
-    const uint32_t output_h = uint32_t(
-        std::floor((int(input_padded_h) - int(pooling_h)) / stride_h_ + 1));
-    const uint32_t output_w = uint32_t(
-        std::floor((int(input_padded_w) - int(pooling_w)) / stride_w_ + 1));
+    const uint32_t output_h = uint32_t(std::floor((int(input_padded_h) - int(pooling_h)) / stride_h_ + 1));
+    const uint32_t output_w = uint32_t(std::floor((int(input_padded_w) - int(pooling_w)) / stride_w_ + 1));
 
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
@@ -133,8 +126,7 @@ InferStatus MaxPoolingLayer::Forward(
       arma::fmat& output_channel = output_data->slice(ic);
       for (uint32_t c = 0; c < input_padded_w - pooling_w + 1; c += stride_w_) {
         int output_col = int(c / stride_w_);
-        for (uint32_t r = 0; r < input_padded_h - pooling_h + 1;
-             r += stride_h_) {
+        for (uint32_t r = 0; r < input_padded_h - pooling_h + 1; r += stride_h_) {
           int output_row = int(r / stride_h_);
           float* output_channel_ptr = output_channel.colptr(output_col);
           float max_value = std::numeric_limits<float>::lowest();
@@ -142,11 +134,10 @@ InferStatus MaxPoolingLayer::Forward(
             const float* col_ptr = input_channel.colptr(c + w - padding_w_);
             for (uint32_t h = 0; h < pooling_h; ++h) {
               float current_value = 0.f;
-              if ((h + r >= padding_h_ && w + c >= padding_w_) &&
-                  (h + r < input_h + padding_h_ &&
-                   w + c < input_w + padding_w_)) {
+              if ((h + r >= padding_h_ && w + c >= padding_w_) && (h + r < input_h + padding_h_ && w + c < input_w + padding_w_)) {
                 current_value = *(col_ptr + r + h - padding_h_);
-              } else {
+              } 
+              else {
                 current_value = std::numeric_limits<float>::lowest();
               }
               max_value = max_value > current_value ? max_value : current_value;
@@ -160,49 +151,47 @@ InferStatus MaxPoolingLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus MaxPoolingLayer::GetInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& max_layer) {
+ParseParameterAttrStatus MaxPoolingLayer::GetInstance(const std::shared_ptr<RuntimeOperator>& op, std::shared_ptr<Layer>& max_layer) {
   CHECK(op != nullptr) << "MaxPooling get instance failed, operator is nullptr";
-  const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params =
-      op->params;
+  const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params = op->params;    // get params in operator
+
+  // Get stride param info
   if (params.find("stride") == params.end()) {
     LOG(ERROR) << "Can not find the stride parameter";
     return ParseParameterAttrStatus::kParameterMissingStride;
   }
-
-  auto stride =
-      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("stride"));
+  auto stride = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("stride"));   // static pointer to Int array pointer
   if (!stride) {
     LOG(ERROR) << "Can not find the stride parameter";
     return ParseParameterAttrStatus::kParameterMissingStride;
   }
 
+  // Get padding param info
   if (params.find("padding") == params.end()) {
     LOG(ERROR) << "Can not find the padding parameter";
     return ParseParameterAttrStatus::kParameterMissingPadding;
   }
-
-  auto padding =
-      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("padding"));
+  auto padding = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("padding"));
   if (!padding) {
     LOG(ERROR) << "Can not find the padding parameter";
     return ParseParameterAttrStatus::kParameterMissingPadding;
   }
 
+  // Get kernel size param info
   if (params.find("kernel_size") == params.end()) {
     LOG(ERROR) << "Can not find the kernel size parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
-
   auto kernel_size = std::dynamic_pointer_cast<RuntimeParameterIntArray>(
       params.at("kernel_size"));
   if (!kernel_size) {
     LOG(ERROR) << "Can not find the kernel size parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
-  const auto& padding_values = padding->value;
-  const auto& stride_values = stride->value;
+
+  // Get data vector
+  const auto& padding_values = padding->value;      
+  const auto& stride_values = stride->value;        // vector<int>
   const auto& kernel_values = kernel_size->value;
 
   const uint32_t dims = 2;
@@ -220,10 +209,8 @@ ParseParameterAttrStatus MaxPoolingLayer::GetInstance(
     LOG(ERROR) << "Can not find the right kernel size parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
-
-  max_layer = std::make_shared<MaxPoolingLayer>(
-      padding_values.at(0), padding_values.at(1), kernel_values.at(0),
-      kernel_values.at(1), stride_values.at(0), stride_values.at(1));
+  // MaxPoolingLayer(padding_h, padding_w, pooling_size_h, pooling_size_w, stride_h, stride_w);
+  max_layer = std::make_shared<MaxPoolingLayer>(padding_values.at(0), padding_values.at(1), kernel_values.at(0), kernel_values.at(1), stride_values.at(0), stride_values.at(1));
 
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
