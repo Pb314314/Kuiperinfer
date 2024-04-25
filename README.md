@@ -82,6 +82,11 @@ Start Lab6. Understand the general data flow of convolution.cpp. Generally go th
 Read almost all the code from course6, but not fully understand computing process. The data organization still vague to me. Confuse about conv2d Im2Col data organization.(4/24/2024)
 
 ### Lab7
+Start Lab7. Understand how to convert expression string into syntax tree. 
+First, get statement_ string. ie. `add(mul(@0,@1),@2)`. Split string into strings and tokens.
+Use generate() function to create syntax tree.
+
+:sleepy::sleepy::sleepy:
 
 ### Lab8
 

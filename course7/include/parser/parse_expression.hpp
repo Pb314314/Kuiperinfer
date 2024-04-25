@@ -56,8 +56,8 @@ struct TokenNode {
   int32_t num_index = -1;
   std::shared_ptr<TokenNode> left = nullptr;   // 语法树的左节点
   std::shared_ptr<TokenNode> right = nullptr;  // 语法树的右节点
-  TokenNode(int32_t num_index, std::shared_ptr<TokenNode> left,
-            std::shared_ptr<TokenNode> right);
+  //
+  TokenNode(int32_t num_index, std::shared_ptr<TokenNode> left, std::shared_ptr<TokenNode> right);
   TokenNode() = default;
 };
 
@@ -93,11 +93,11 @@ class ExpressionParser {
 
   std::shared_ptr<TokenNode> Generate_(int32_t& index);
  private:
-  // 被分割的词语数组
+  // token vector after split
   std::vector<Token> tokens_;
-  // 被分割的字符串数组
+  // string vector after token split.
   std::vector<std::string> token_strs_;
-  // 待分割的表达式
+  // string need to be split into tokens
   std::string statement_;
 };
 }  // namespace kuiper_infer
