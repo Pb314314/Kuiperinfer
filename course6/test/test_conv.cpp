@@ -27,6 +27,7 @@ TEST(test_registry, create_layer_convforward) {
                              "13,14,15,16;";
     inputs.at(i) = input;
   }
+  // input data for computation
   const uint32_t kernel_h = 3;
   const uint32_t kernel_w = 3;
   const uint32_t stride_h = 1;
@@ -45,7 +46,7 @@ TEST(test_registry, create_layer_convforward) {
   }
   ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
                               0, stride_h, stride_w, 1, false);
-  conv_layer.set_weights(weights);
+  conv_layer.set_weights(weights);    // set weights for conv_layer
   conv_layer.Forward(inputs, outputs);
   outputs.at(0)->Show();
 }

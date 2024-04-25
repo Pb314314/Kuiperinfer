@@ -79,6 +79,8 @@ Finish Sigmoid operator. (4/17/2024)
 ### Lab6
 Start Lab6. Understand the general data flow of convolution.cpp. Generally go throught the GetInstance and Forward functions. (4/19/2024)
 
+Read almost all the code from course6, but not fully understand computing process. The data organization still vague to me. Confuse about conv2d Im2Col data organization.(4/24/2024)
+
 ### Lab7
 
 ### Lab8

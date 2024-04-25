@@ -27,38 +27,39 @@
 namespace kuiper_infer {
 ParamLayer::ParamLayer(const std::string& layer_name) : Layer(layer_name) {}
 
+// Allocate space for Bias
 void ParamLayer::InitBiasParam(const uint32_t param_count,
                                const uint32_t param_channel,
                                const uint32_t param_height,
                                const uint32_t param_width) {
   this->bias_ = std::vector<sftensor>(param_count);
   for (uint32_t i = 0; i < param_count; ++i) {
-    this->bias_.at(i) =
-        std::make_shared<ftensor>(param_channel, param_height, param_width);
+    this->bias_.at(i) =std::make_shared<ftensor>(param_channel, param_height, param_width); // allocate bias for ith batch
   }
 }
 
+// Allocate space for Weight
 void ParamLayer::InitWeightParam(const uint32_t param_count,
                                  const uint32_t param_channel,
                                  const uint32_t param_height,
                                  const uint32_t param_width) {
   this->weights_ = std::vector<sftensor>(param_count);
-  for (uint32_t i = 0; i < param_count; ++i) {
-    this->weights_.at(i) =
-        std::make_shared<ftensor>(param_channel, param_height, param_width);
+  for (uint32_t i = 0; i < param_count; ++i) {    // number of batch of weights
+    this->weights_.at(i) = std::make_shared<ftensor>(param_channel, param_height, param_width);   // allocate weight tensor for ith batch
   }
 }
 
+// get weights info from Layer
 const std::vector<std::shared_ptr<Tensor<float>>>& ParamLayer::weights() const {
   return this->weights_;
 }
-
+// get bias info from Layer
 const std::vector<std::shared_ptr<Tensor<float>>>& ParamLayer::bias() const {
   return this->bias_;
 }
 
-void ParamLayer::set_weights(
-    const std::vector<std::shared_ptr<Tensor<float>>>& weights) {
+// Set weights for Paramlayer
+void ParamLayer::set_weights(const std::vector<std::shared_ptr<Tensor<float>>>& weights) {
   CHECK(weights.size() == weights_.size());
   for (uint32_t i = 0; i < weights.size(); ++i) {
     CHECK(this->weights_.at(i) != nullptr);
@@ -69,8 +70,7 @@ void ParamLayer::set_weights(
   this->weights_ = weights;
 }
 
-void ParamLayer::set_bias(
-    const std::vector<std::shared_ptr<Tensor<float>>>& bias) {
+void ParamLayer::set_bias(const std::vector<std::shared_ptr<Tensor<float>>>& bias) {
   if (!this->bias_.empty()) {
     CHECK(bias.size() == bias_.size());
     for (uint32_t i = 0; i < bias.size(); ++i) {
@@ -83,6 +83,7 @@ void ParamLayer::set_bias(
   }
 }
 
+// set weights using vector<float>
 void ParamLayer::set_weights(const std::vector<float>& weights) {
   const uint32_t elem_size = weights.size();
 
@@ -94,34 +95,34 @@ void ParamLayer::set_weights(const std::vector<float>& weights) {
 
   CHECK_EQ(weight_size, elem_size);
   CHECK_EQ(elem_size % batch_size, 0);
-  const uint32_t blob_size = elem_size / batch_size;
+  const uint32_t blob_size = elem_size / batch_size;    // number of elements per batch
   for (uint32_t idx = 0; idx < batch_size; ++idx) {
     const uint32_t start_offset = idx * blob_size;
     const uint32_t end_offset = start_offset + blob_size;
-    const auto& sub_values = std::vector<float>{weights.begin() + start_offset,
-                                                weights.begin() + end_offset};
-    this->weights_.at(idx)->Fill(sub_values);
+    // use this part of vector to get a new vector
+    const auto& sub_values = std::vector<float>{weights.begin() + start_offset, weights.begin() + end_offset};
+    this->weights_.at(idx)->Fill(sub_values);           // fill weights[idx] using vector<float>
   }
 }
 
+// set bias using vector<float>
 void ParamLayer::set_bias(const std::vector<float>& bias) {
-  const uint32_t elem_size = bias.size();
+  const uint32_t elem_size = bias.size();   // number of float elements in total
 
   uint32_t bias_size = 0;
   const uint32_t batch_size = this->bias_.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    bias_size += this->bias_.at(i)->size();
+    bias_size += this->bias_.at(i)->size();   // total number of this->bias_ elements
   }
 
   CHECK_EQ(bias_size, elem_size);
   CHECK_EQ(elem_size % batch_size, 0);
 
-  const uint32_t blob_size = elem_size / batch_size;
+  const uint32_t blob_size = elem_size / batch_size;        // number of elements per batch
   for (uint32_t idx = 0; idx < batch_size; ++idx) {
-    const uint32_t start_offset = idx * blob_size;
-    const uint32_t end_offset = start_offset + blob_size;
-    const auto& sub_values = std::vector<float>{bias.begin() + start_offset,
-                                                bias.begin() + end_offset};
+    const uint32_t start_offset = idx * blob_size;          // start offset of current block
+    const uint32_t end_offset = start_offset + blob_size;   // end offset of current block
+    const auto& sub_values = std::vector<float>{bias.begin() + start_offset, bias.begin() + end_offset};
     this->bias_.at(idx)->Fill(sub_values);
   }
 }

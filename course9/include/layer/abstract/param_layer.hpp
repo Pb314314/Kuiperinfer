@@ -37,8 +37,7 @@ class ParamLayer : public Layer {
    * @param param_height  卷积的高度
    * @param param_width   卷积的宽度
    */
-  void InitWeightParam(const uint32_t param_count, const uint32_t param_channel,
-                       const uint32_t param_height, const uint32_t param_width);
+  void InitWeightParam(const uint32_t param_count, const uint32_t param_channel, const uint32_t param_height, const uint32_t param_width);
 
   /**
    * 初始化偏移参数
@@ -47,8 +46,7 @@ class ParamLayer : public Layer {
    * @param param_height 偏移参数高度
    * @param param_width  偏移参数宽度
    */
-  void InitBiasParam(const uint32_t param_count, const uint32_t param_channel,
-                     const uint32_t param_height, const uint32_t param_width);
+  void InitBiasParam(const uint32_t param_count, const uint32_t param_channel, const uint32_t param_height, const uint32_t param_width);
 
   /**
    * 返回权重参数
@@ -78,8 +76,7 @@ class ParamLayer : public Layer {
    * 设置权重参数
    * @param weights 权重参数
    */
-  void set_weights(
-      const std::vector<std::shared_ptr<Tensor<float>>> &weights) override;
+  void set_weights(const std::vector<std::shared_ptr<Tensor<float>>> &weights) override;
 
   /**
    * 设置偏移量参数

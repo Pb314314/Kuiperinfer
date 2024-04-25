@@ -28,6 +28,9 @@
 #include "runtime/runtime_ir.hpp"
 
 namespace kuiper_infer {
+// Constructor for ConcolutionLayer
+// Set class variables
+// Init weight and bias
 ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
                                    uint32_t kernel_h, uint32_t kernel_w,
                                    uint32_t padding_h, uint32_t padding_w,
@@ -48,7 +51,7 @@ ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
     this->InitBiasParam(output_channel, 1, 1, 1);
   }
 }
-
+// Do the computation
 InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs, std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {   // inputs should not by empty
     LOG(ERROR) << "The input tensor array in the convolution layer is empty";
@@ -82,7 +85,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
   const uint32_t kernel_h = this->weights_.at(0)->rows();         // height of kernels
   const uint32_t kernel_w = this->weights_.at(0)->cols();         // weight of kernels
   const uint32_t kernel_c = this->weights_.at(0)->channels();     // channel of kernels
-  const uint32_t row_len = kernel_h * kernel_w;
+  const uint32_t row_len = kernel_h * kernel_w;                   // number of elements per kernel
   CHECK(kernel_h > 0 && kernel_w > 0 && kernel_c > 0)
       << "The size of kernel matrix in the convolution layer should be greater "
          "than zero";
@@ -96,7 +99,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
   const uint32_t kernel_count_group = kernel_count / groups_;
   const uint32_t batch_size = inputs.size();
 
-  if (kernel_matrix_arr_.empty()) {
+  if (kernel_matrix_arr_.empty()) {   // If kernel_matrix_arr: Initialize kernel matrix
     this->InitIm2ColWeight();
   }
 
@@ -110,7 +113,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     }
   }
 
-  for (uint32_t i = 0; i < batch_size; ++i) {
+  for (uint32_t i = 0; i < batch_size; ++i) {   // i-th batch
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);      // get an input tensor
     CHECK(input != nullptr && !input->empty())
         << "The input tensor array in the convolution layer has an empty  "
@@ -132,7 +135,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       CHECK(input_c % groups_ == 0);
     }
 
-    uint32_t col_len = output_h * output_w;
+    uint32_t col_len = output_h * output_w;     // number of element of output(number of kernel computation needed per channel?)
     CHECK(col_len > 0) << "Output_h x output_w for the convolution layer "
                           "should be greater than zero "
                        << i << " th";
@@ -141,8 +144,12 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     CHECK(input_c_group == kernel_c) << "The number of channel for the kernel "
                                         "matrix and input tensor do not match";
     
-    for (uint32_t g = 0; g < groups_; ++g) {
+    for (uint32_t g = 0; g < groups_; ++g) {    // compute each group in every batch
+      // change input into input_matrix
+      // row_len : number of elements per kernel
+      // col_len: number of output elemtents per channel?
       const auto& input_matrix = Im2Col(input, kernel_w, kernel_h, input->cols(), input->rows(), input_c_group, g, row_len, col_len);
+      
       std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
       if (output_tensor == nullptr || output_tensor->empty()) {
         output_tensor = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
@@ -154,16 +161,16 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
              "incorrectly sized tensor "
           << i << "th";
 
-      const uint32_t kernel_count_group_start = kernel_count_group * g;
+      const uint32_t kernel_count_group_start = kernel_count_group * g;   // kernel start index
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
         arma::frowvec kernel;
         if (groups_ == 1) {
           kernel = kernel_matrix_arr_.at(k);      // get the kernel from kernel_matrix_arr_
         } 
         else {
-          kernel = kernel_matrix_arr_.at(kernel_count_group_start + k);
+          kernel = kernel_matrix_arr_.at(kernel_count_group_start + k);   // for k-th group kernel
         }
-        // use input and kernel to compute the output
+        // compute current group output, save in output_tensor
         ConvGemmBias(input_matrix, output_tensor, g, k, kernel_count_group, kernel, output_w, output_h);
       }
     }
@@ -171,12 +178,15 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
   return InferStatus::kInferSuccess;
 }
 
+// Do Im2Col on input tensor, return processed tensor.
 arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
                                     uint32_t kernel_h, uint32_t input_w,
                                     uint32_t input_h, uint32_t input_c_group,
                                     uint32_t group, uint32_t row_len,
                                     uint32_t col_len) const {
-  arma::fmat input_matrix(input_c_group * row_len, col_len);
+  // row_len: number of elements of a kernel channel?
+  // col_len: number of computation needed for output
+  arma::fmat input_matrix(input_c_group * row_len, col_len);    
   const uint32_t input_padded_h = input_h + 2 * padding_h_;
   const uint32_t input_padded_w = input_w + 2 * padding_w_;
   const float padding_value = 0.f;
@@ -194,8 +204,7 @@ arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
             if ((kh + r >= padding_h_ && kw + w >= padding_w_) &&
                 (kh + r < input_h + padding_h_ &&
                  kw + w < input_w + padding_w_)) {
-              float* region_ptr =
-                  input_channel_ptr + region_w + (r + kh - padding_h_);
+              float* region_ptr = input_channel_ptr + region_w + (r + kh - padding_h_);
               *input_matrix_ptr = *region_ptr;
             } else {
               *input_matrix_ptr = padding_value;  // only support zero mode
@@ -209,16 +218,18 @@ arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
   return input_matrix;
 }
 
-// compute the output tensor.
+// Compute output for output_tensor. (just compute for one group)
 void ConvolutionLayer::ConvGemmBias(const arma::fmat& input_matrix, sftensor output_tensor, uint32_t group, uint32_t kernel_index, uint32_t kernel_count_group,
     const arma::frowvec& kernel, uint32_t output_w, uint32_t output_h) const {
+  // direct memory manipulation, output tensor will change after this function.
+  // output(float* of start of current group, height, weight,....)
   arma::fmat output(output_tensor->matrix_raw_ptr(kernel_index + group * kernel_count_group), output_h, output_w, false, true);
 
   CHECK(output.size() == output_h * output_w)
       << "Output_h x output_w for the convolution layer "
          "should be output tensor size";
 
-  if (!this->bias_.empty() && this->use_bias_) {     // if has bias and use bias
+  if (!this->bias_.empty() && this->use_bias_) {      // if has bias and use bias
     std::shared_ptr<Tensor<float>> bias;
     bias = this->bias_.at(kernel_index);
     if (bias != nullptr && !bias->empty()) {
@@ -230,9 +241,13 @@ void ConvolutionLayer::ConvGemmBias(const arma::fmat& input_matrix, sftensor out
     }
   } 
   else {
+    // kernel is 1 * n
+    // input_matrix is n * m
     output = kernel * input_matrix;                 // else, use kernel and input matric to compute the output
   }
 }
+
+// Initialize kernel_matrix_arr
 // Set this->kernel_matrix_arr_ use  this->weights_
 void ConvolutionLayer::InitIm2ColWeight() {
   const uint32_t kernel_count = this->weights_.size();
@@ -240,7 +255,7 @@ void ConvolutionLayer::InitIm2ColWeight() {
   const uint32_t kernel_h = this->weights_.at(0)->rows();
   const uint32_t kernel_w = this->weights_.at(0)->cols();
   const uint32_t kernel_c = this->weights_.at(0)->channels();
-  const uint32_t row_len = kernel_h * kernel_w;
+  const uint32_t row_len = kernel_h * kernel_w;   // number of element per channel
   CHECK(kernel_h > 0 && kernel_w > 0 && kernel_c > 0)
       << "The size of kernel matrix should be greater than zero";
 
@@ -252,15 +267,19 @@ void ConvolutionLayer::InitIm2ColWeight() {
   }
 
   if (groups_ == 1) {
-    const uint32_t kernel_count_group = kernel_count / groups_;
+    const uint32_t kernel_count_group = kernel_count / groups_;   // number of kernels
     std::vector<arma::frowvec> kernel_matrix_arr(kernel_count_group);
-    arma::frowvec kernel_matrix_c(row_len * kernel_c);
+    arma::frowvec kernel_matrix_c(row_len * kernel_c);    // a frowvec of a kernel
     for (uint32_t k = 0; k < kernel_count_group; ++k) {   // every kernel
       const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);      
       for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {      // every channel
+        // copy every channel to kernel_matrix_c
+        // kernel_matrix_c.memptr() * row_len * ic: kernel_matrix_start_pointer, row_len : number of elements per channel, ic: channel index
+        // kernel->matrix_raw_ptr: start pointer of ic-th channel
+        // row_len * sizeof(float) space for a channel. row_len: number of elements per channel;
         memcpy(kernel_matrix_c.memptr() + row_len * ic, kernel->matrix_raw_ptr(ic), row_len * sizeof(float));
       }
-      kernel_matrix_arr.at(k) = kernel_matrix_c;
+      kernel_matrix_arr.at(k) = kernel_matrix_c;  // put kernel_matrix_arr into kernel_matrix_c
     }
     this->kernel_matrix_arr_ = std::move(kernel_matrix_arr);
   } 
@@ -269,11 +288,11 @@ void ConvolutionLayer::InitIm2ColWeight() {
     const uint32_t kernel_count_group = kernel_count / groups_;
     std::vector<arma::frowvec> kernel_matrix_arr;
     for (uint32_t g = 0; g < groups_; ++g) {
-      arma::fmat kernel_matrix_c(1, row_len * kernel_c);
+      arma::fmat kernel_matrix_c(1, row_len * kernel_c);  // 1 row, row_len*kernel_c matrix
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
-        const std::shared_ptr<Tensor<float>>& kernel =
-            this->weights_.at(k + g * kernel_count_group);
+        const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k + g * kernel_count_group);
         for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
+          //memcpy(dest_address,)
           memcpy(kernel_matrix_c.memptr() + row_len * ic, kernel->matrix_raw_ptr(ic), row_len * sizeof(float));
         }
         kernel_matrix_arr.emplace_back(kernel_matrix_c);
@@ -284,6 +303,7 @@ void ConvolutionLayer::InitIm2ColWeight() {
   }
 }
 
+// Use RuntimeOperator to initialize conv_layer
 ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<RuntimeOperator>& op, std::shared_ptr<Layer>& conv_layer) {
   CHECK(op != nullptr) << "Convolution operator is nullptr";
   const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params = op->params;    // get the params mapping 
@@ -450,7 +470,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
 
   auto conv_layer_derived = std::dynamic_pointer_cast<ConvolutionLayer>(conv_layer);    // Cast layer to ConvolutionLayer
   CHECK(conv_layer_derived != nullptr);
-  conv_layer_derived->InitIm2ColWeight();
+  conv_layer_derived->InitIm2ColWeight();     // Initialize kernel_matrix_arr;
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 

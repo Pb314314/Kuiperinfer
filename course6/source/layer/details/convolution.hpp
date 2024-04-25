@@ -61,6 +61,11 @@ class ConvolutionLayer : public ParamLayer {
   uint32_t stride_h_ = 1;
   uint32_t stride_w_ = 1;
   std::vector<arma::frowvec> kernel_matrix_arr_;
+  /* elements from param_layer
+  protected:
+  std::vector<std::shared_ptr<Tensor<float>>> weights_;
+  std::vector<std::shared_ptr<Tensor<float>>> bias_;
+  */
 };
 
 }  // namespace kuiper_infer
