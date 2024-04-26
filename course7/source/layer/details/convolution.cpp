@@ -477,7 +477,6 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
   conv_layer_derived->InitIm2ColWeight();
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
-
-LayerRegistererWrapper kConvGetInstance("nn.Conv2d",
-                                        ConvolutionLayer::GetInstance);
+// Conv Layer registration
+LayerRegistererWrapper kConvGetInstance("nn.Conv2d", ConvolutionLayer::GetInstance);
 }  // namespace kuiper_infer

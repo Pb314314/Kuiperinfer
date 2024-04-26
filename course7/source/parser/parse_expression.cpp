@@ -29,8 +29,8 @@
 
 namespace kuiper_infer {
 
-void ReversePolish(const std::shared_ptr<TokenNode> &root_node,
-                   std::vector<std::shared_ptr<TokenNode>> &reverse_polish) {
+void ReversePolish(const std::shared_ptr<TokenNode> &root_node, std::vector<std::shared_ptr<TokenNode>> &reverse_polish) {
+  // Postorder traversal the syntax tree.
   if (root_node != nullptr) {
     ReversePolish(root_node->left, reverse_polish);
     ReversePolish(root_node->right, reverse_polish);
@@ -40,6 +40,7 @@ void ReversePolish(const std::shared_ptr<TokenNode> &root_node,
 
 void ExpressionParser::Tokenizer(bool retokenize) {
   if (!retokenize && !this->tokens_.empty()) {
+    // if retokenize = false and tokens not empty
     return;
   }
   
@@ -241,14 +242,14 @@ std::vector<std::shared_ptr<TokenNode>> ExpressionParser::Generate() {
     this->Tokenizer(true);
   }
   int index = 0;
+  // Generate syntax tree, return root TokenNode pointer
   std::shared_ptr<TokenNode> root = Generate_(index);
   CHECK(root != nullptr);
   CHECK(index == tokens_.size() - 1);
 
-  // 转逆波兰式,之后转移到expression中
   std::vector<std::shared_ptr<TokenNode>> reverse_polish;
+  // Reverse Polish notation, save in reverse_polish vector
   ReversePolish(root, reverse_polish);
-
   return reverse_polish;
 }
 

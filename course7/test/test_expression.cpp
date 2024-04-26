@@ -124,15 +124,12 @@ TEST(test_expression, complex1) {
   using namespace kuiper_infer;
   const std::string &str = "mul(@2,add(@0,@1))";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 =
-      std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(2.f);
-  std::shared_ptr<Tensor<float>> input2 =
-      std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(3.f);
 
-  std::shared_ptr<Tensor<float>> input3 =
-      std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 224, 224);
   input3->Fill(4.f);
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -145,8 +142,7 @@ TEST(test_expression, complex1) {
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
-  std::shared_ptr<Tensor<float>> output2 =
-      std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> output2 = std::make_shared<Tensor<float>>(3, 224, 224);
   output2->Fill(20.f);
   std::shared_ptr<Tensor<float>> output1 = outputs.front();
 

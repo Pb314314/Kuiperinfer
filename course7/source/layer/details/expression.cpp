@@ -29,12 +29,12 @@
 namespace kuiper_infer {
 ExpressionLayer::ExpressionLayer(std::string statement)
     : NonParamLayer("Expression"), statement_(std::move(statement)) {
+  // Initialize parser of ExpressionLayer
   parser_ = std::make_unique<ExpressionParser>(statement_);
 }
 
-InferStatus ExpressionLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+// compute the expression output.
+InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs, std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the expression layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -47,11 +47,12 @@ InferStatus ExpressionLayer::Forward(
 
   CHECK(this->parser_ != nullptr)
       << "The parser in the expression layer is null!";
+  // Tokenizer the statement
   this->parser_->Tokenizer(false);
   const auto& expressions = this->parser_->tokens();
   CHECK(!expressions.empty())
       << "The expression parser failed to parse " << statement_;
-
+  // check input tensor validity
   for (uint32_t i = 0; i < inputs.size(); ++i) {
     const sftensor& input_data = inputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
@@ -62,7 +63,7 @@ InferStatus ExpressionLayer::Forward(
     }
   }
 
-  const uint32_t batch_size = outputs.size();
+  const uint32_t batch_size = outputs.size(); // number of tensors of input and output 
   for (uint32_t i = 0; i < batch_size; ++i) {
     if (outputs.at(i) == nullptr || outputs.at(i)->empty()) {
       DLOG(ERROR) << "The output tensor array in the expression layer has an "
@@ -70,12 +71,11 @@ InferStatus ExpressionLayer::Forward(
                   << i << "th";
       return InferStatus::kInferFailedOutputEmpty;
     }
-    outputs.at(i)->Fill(0.f);
+    outputs.at(i)->Fill(0.f);   // set output tensor to zeros
   }
 
   std::stack<std::vector<std::shared_ptr<Tensor<float>>>> op_stack;
-  const std::vector<std::shared_ptr<TokenNode>>& token_nodes =
-      this->parser_->Generate();
+  const std::vector<std::shared_ptr<TokenNode>>& token_nodes = this->parser_->Generate();
   for (const auto& token_node : token_nodes) {
     if (token_node->num_index >= 0) {
       // process operator
@@ -113,14 +113,13 @@ InferStatus ExpressionLayer::Forward(
 
       std::vector<std::shared_ptr<Tensor<float>>> output_token_nodes(
           batch_size);
+      // compute each output using input
       for (uint32_t i = 0; i < batch_size; ++i) {
         // do execution
         if (op == int(TokenType::TokenAdd)) {
-          output_token_nodes.at(i) =
-              TensorElementAdd(input_node1.at(i), input_node2.at(i));
+          output_token_nodes.at(i) = TensorElementAdd(input_node1.at(i), input_node2.at(i));
         } else if (op == int(TokenType::TokenMul)) {
-          output_token_nodes.at(i) =
-              TensorElementMultiply(input_node1.at(i), input_node2.at(i));
+          output_token_nodes.at(i) = TensorElementMultiply(input_node1.at(i), input_node2.at(i));
         } else {
           LOG(FATAL) << "Unknown operator type: " << op;
         }
@@ -128,11 +127,13 @@ InferStatus ExpressionLayer::Forward(
       op_stack.push(output_token_nodes);
     }
   }
-
+  // should have only one output vector(vector of batch of tensors), which has same size(batch) as input vector
   CHECK(op_stack.size() == 1)
       << "The expression has more than one output operand!";
+  // output_node: batches of tensors
   std::vector<sftensor> output_node = op_stack.top();
   op_stack.pop();
+  // copy each batch of tensor into outputs vector
   for (int i = 0; i < batch_size; ++i) {
     CHECK(outputs.at(i) != nullptr && !outputs.at(i)->empty());
     CHECK(outputs.at(i)->shapes() == output_node.at(i)->shapes());
@@ -141,30 +142,27 @@ InferStatus ExpressionLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus ExpressionLayer::GetInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& expression_layer) {
+ParseParameterAttrStatus ExpressionLayer::GetInstance(const std::shared_ptr<RuntimeOperator>& op, std::shared_ptr<Layer>& expression_layer) {
   CHECK(op != nullptr) << "Expression operator is nullptr";
   const auto& params = op->params;
+  // Get expression param from operator: expr: add(@0,@1)
   if (params.find("expr") == params.end()) {
     return ParseParameterAttrStatus::kParameterMissingExpr;
   }
-
-  auto statement_param =
-      std::dynamic_pointer_cast<RuntimeParameterString>(params.at("expr"));
+  // cast param into ParamString
+  auto statement_param = std::dynamic_pointer_cast<RuntimeParameterString>(params.at("expr"));
   if (statement_param == nullptr) {
     LOG(ERROR) << "Can not find the expression parameter";
     return ParseParameterAttrStatus::kParameterMissingExpr;
   }
-  if (statement_param->type != RuntimeParameterType::kParameterString) {
+  if (statement_param->type != RuntimeParameterType::kParameterString){
     LOG(ERROR) << "Can not find the expression parameter";
     return ParseParameterAttrStatus::kParameterMissingExpr;
   }
-
+  // create expression layer
   expression_layer = std::make_shared<ExpressionLayer>(statement_param->value);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
-
-LayerRegistererWrapper kExpressionGetInstance("pnnx.Expression",
-                                              ExpressionLayer::GetInstance);
+// ExpressionLayer registration
+LayerRegistererWrapper kExpressionGetInstance("pnnx.Expression", ExpressionLayer::GetInstance);
 }  // namespace kuiper_infer
