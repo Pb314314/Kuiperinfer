@@ -28,7 +28,7 @@
 #include <utility>
 
 namespace kuiper_infer {
-
+// Not a class function. Get Polish reverse form for computation.
 void ReversePolish(const std::shared_ptr<TokenNode> &root_node,
                    std::vector<std::shared_ptr<TokenNode>> &reverse_polish) {
   if (root_node != nullptr) {
@@ -129,6 +129,7 @@ const std::vector<std::string> &ExpressionParser::token_strs() const {
   return this->token_strs_;
 }
 
+// Analyze statement, get syntax tree. 
 std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t &index) {
   CHECK(index < this->tokens_.size());
   const auto current_token = this->tokens_.at(index);
@@ -189,7 +190,7 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t &index) {
     LOG(FATAL) << "Unknown token type: " << int(current_token.token_type);
   }
 }
-
+// Build Syntax tree using Generate_, get reverse polish expression for computation
 std::vector<std::shared_ptr<TokenNode>> ExpressionParser::Generate() {
   if (this->tokens_.empty()) {
     this->Tokenizer(true);

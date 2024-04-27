@@ -32,9 +32,7 @@ ExpressionLayer::ExpressionLayer(std::string statement)
   parser_ = std::make_unique<ExpressionParser>(statement_);
 }
 
-InferStatus ExpressionLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs, std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the expression layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -74,8 +72,8 @@ InferStatus ExpressionLayer::Forward(
   }
 
   std::stack<std::vector<std::shared_ptr<Tensor<float>>>> op_stack;
-  const std::vector<std::shared_ptr<TokenNode>>& token_nodes =
-      this->parser_->Generate();
+  // Get reverse polish form for computation.
+  const std::vector<std::shared_ptr<TokenNode>>& token_nodes = this->parser_->Generate();
   for (const auto& token_node : token_nodes) {
     if (token_node->num_index >= 0) {
       // process operator
@@ -89,7 +87,8 @@ InferStatus ExpressionLayer::Forward(
         input_token_nodes.push_back(inputs.at(i + start_pos));
       }
       op_stack.push(input_token_nodes);
-    } else {
+    } 
+    else {
       // process operation
       const int32_t op = token_node->num_index;
       if (op != int(TokenType::TokenAdd) && op != int(TokenType::TokenMul)) {
@@ -150,8 +149,7 @@ ParseParameterAttrStatus ExpressionLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingExpr;
   }
 
-  auto statement_param =
-      std::dynamic_pointer_cast<RuntimeParameterString>(params.at("expr"));
+  auto statement_param = std::dynamic_pointer_cast<RuntimeParameterString>(params.at("expr"));
   if (statement_param == nullptr) {
     LOG(ERROR) << "Can not find the expression parameter";
     return ParseParameterAttrStatus::kParameterMissingExpr;

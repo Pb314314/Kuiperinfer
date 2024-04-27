@@ -210,18 +210,14 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(
   return layer;
 }
 
-void RuntimeGraph::ProbeNextLayer(
-    const std::shared_ptr<RuntimeOperator> &current_op,
-    const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas) {
-  // 当前节点的后继节点next_ops
+void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op, const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas) {
+  // mapping of next operators of current operator
   const auto &next_ops = current_op->output_operators;
-  // 对所有后继节点进行遍历
   for (const auto &[_, next_rt_operator] : next_ops) {
-    // 得到后继节点的输入next_input_operands
+    // reference of input operand of forward operator
     const auto &next_input_operands = next_rt_operator->input_operands;
-    // 确定后继节点的输入来自于current_op
-    if (next_input_operands.find(current_op->name) !=
-        next_input_operands.end()) {
+    // find next input operands of next operator
+    if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
       // 得到后继节点的关于current_op输出的输入空间 next_input_datas
       /**
        * next_input_operands:
@@ -230,10 +226,9 @@ void RuntimeGraph::ProbeNextLayer(
        *    输入2 -- other_op.name: other_op对应的输出空间
        * }
        */
-      std::vector<std::shared_ptr<ftensor>> &next_input_datas =
-          next_input_operands.at(current_op->name)->datas;
+      std::vector<std::shared_ptr<ftensor>> &next_input_datas = next_input_operands.at(current_op->name)->datas;
       CHECK(next_input_datas.size() == layer_output_datas.size());
-      // 将当前current_op的输出赋值到next_input_datas中
+      // set current output to next operator input operand
       for (int i = 0; i < next_input_datas.size(); ++i) {
         next_input_datas.at(i) = layer_output_datas.at(i);
       }
@@ -241,9 +236,8 @@ void RuntimeGraph::ProbeNextLayer(
   }
 }
 
-std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs, bool debug) {
-  // 检查当前的执行图是否已经初始化完毕
+std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs, bool debug) {
+  // check whether complete build of current graph.
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!";
   }
@@ -266,34 +260,37 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
       CHECK(current_op->input_operands_seq.size() == 1);
       current_op->output_operands = current_op->input_operands_seq.front();
     } else {
-      InferStatus status = current_op->layer->Forward();
+      // Call forward function for normal operator, set output operand of current operator
+      InferStatus status = current_op->layer->Forward();  // set current_op->output_operands->datas 
       CHECK(status == InferStatus::kInferSuccess)
               << current_op->layer->layer_name()
               << " layer forward failed, error code: " << int(status);
       current_op->has_forward = true;
+      // use current output_operand to set next operators
       ProbeNextLayer(current_op, current_op->output_operands->datas);
     }
   }
-
+  // Check every operator has been forwarded
   for (const auto& op : topo_operators_) {
     LOG_IF(FATAL, !op->has_forward)
             << "The operator: " << op->name << " has not been forward yet!";
   }
-
+  // find output operator
   if (operators_maps_.find(output_name_) != operators_maps_.end()) {
     const auto& output_op = operators_maps_.at(output_name_);
     CHECK(output_op->output_operands != nullptr)
             << "Output from" << output_op->name << " is empty";
+    // get output operands
     const auto& output_operand = output_op->output_operands;
     return output_operand->datas;
-  } else {
+  } 
+  else {
     LOG(FATAL) << "Can not find the output operator " << output_name_;
     return std::vector<std::shared_ptr<Tensor<float>>>{};
   }
 }
 
-void RuntimeGraph::Build(const std::string &input_name,
-                         const std::string &output_name) {
+void RuntimeGraph::Build(const std::string &input_name, const std::string &output_name) {
   if (graph_state_ == GraphState::Complete) {
     LOG(INFO) << "Model has been built already!";
     return;
