@@ -88,11 +88,10 @@ Use generate() function to create syntax tree.
 
 :sleepy::sleepy::sleepy:
 
-Almost finish Lab7. Read the Expression layer code. Need to finish sin Forward function tonight.
+Almost finish Lab7. Read the Expression layer code. Need to finish sin Forward function tonight.(4/26/2024)
 
 ### Lab8
+Start Lab8. Read through the Graph Forward function. Understand the Resnet forward process. Need to read through other operators' code.(4/27/2024)
 
-### Lab8
-
-
+### Lab9
 
