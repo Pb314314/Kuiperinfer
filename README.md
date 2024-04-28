@@ -93,5 +93,9 @@ Almost finish Lab7. Read the Expression layer code. Need to finish sin Forward f
 ### Lab8
 Start Lab8. Read through the Graph Forward function. Understand the Resnet forward process. Need to read through other operators' code.(4/27/2024)
 
+Read through Linear operator, forward(), GetInstance();(4/28/2024)
+
+:hourglass::hourglass::hourglass:
+
 ### Lab9
 

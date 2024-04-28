@@ -35,15 +35,14 @@ LinearLayer::LinearLayer(int32_t in_features, int32_t out_features,
       out_features_(out_features) {
   CHECK_GT(in_features_, 0);
   CHECK_GT(out_features_, 0);
-  this->InitWeightParam(1, 1, out_features, in_features);
+  // InitWeightParam(batch, channel, height, width);
+  this->InitWeightParam(1, 1, out_features, in_features);// Init a 2D matrix
   if (use_bias) {
     this->InitBiasParam(1, 1, 1, out_features);
   }
 }
 
-InferStatus LinearLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs, std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the linear layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -80,7 +79,7 @@ InferStatus LinearLayer::Forward(
   arma::fmat weight_data(weight->raw_ptr(), out_features_, in_features_, false,
                          true);
   const arma::fmat& weight_data_t = weight_data.t();
-
+  // Do matrix multiply on each batch
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
@@ -117,7 +116,7 @@ InferStatus LinearLayer::Forward(
       CHECK(output_raw_shapes.at(0) == out_features_);
     }
 
-    arma::fmat& result = output->slice(0);
+    arma::fmat& result = output->slice(0);    // why always use first channel, only has first channel?
     result = input_vec * weight_data_t;
     if (use_bias_) {
       CHECK(!this->bias_.empty() && this->bias_.size() == 1)
@@ -136,22 +135,20 @@ InferStatus LinearLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus LinearLayer::GetInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& linear_layer) {
+ParseParameterAttrStatus LinearLayer::GetInstance(const std::shared_ptr<RuntimeOperator>& op,std::shared_ptr<Layer>& linear_layer) {
   CHECK(op != nullptr) << "Linear operator is nullptr";
   const auto& params = op->params;
   if (params.find("bias") == params.end()) {
     LOG(ERROR) << "Can not find the use bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
-  auto use_bias_param =
-      std::dynamic_pointer_cast<RuntimeParameterBool>(params.at("bias"));
+  // get bool variable, whether use bias
+  auto use_bias_param = std::dynamic_pointer_cast<RuntimeParameterBool>(params.at("bias"));
   if (use_bias_param == nullptr) {
     LOG(ERROR) << "Can not find the use bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
-
+  // get attr mapping from operator
   const auto& attr = op->attribute;
   CHECK(!attr.empty()) << "Operator attributes is empty";
 
@@ -161,12 +158,13 @@ ParseParameterAttrStatus LinearLayer::GetInstance(
   }
 
   if (use_bias_param->value) {
+    // if need bias, find "bias" in attr
     if (attr.find("bias") == attr.end()) {
       LOG(ERROR) << "Can not find the bias parameter";
       return ParseParameterAttrStatus::kAttrMissingBias;
     }
   }
-
+  // Get attribute, bias and shape from attr
   const auto& weight = attr.at("weight");
   const auto& bias = attr.at("bias");
   const auto& shapes = weight->shape;
@@ -175,16 +173,15 @@ ParseParameterAttrStatus LinearLayer::GetInstance(
     return ParseParameterAttrStatus::kAttrMissingOutFeatures;
   }
 
-  int32_t out_features = shapes.at(0);
-  int32_t in_features = shapes.at(1);
+  int32_t out_features = shapes.at(0);  // output dimension
+  int32_t in_features = shapes.at(1);   // input dimension
   const bool use_bias = use_bias_param->value;
 
-  linear_layer =
-      std::make_shared<LinearLayer>(in_features, out_features, use_bias);
+  linear_layer = std::make_shared<LinearLayer>(in_features, out_features, use_bias);
+  // set bias
   if (use_bias) {
     linear_layer->set_bias(bias->get<float>());
   }
-
   // load weights
   linear_layer->set_weights(weight->get<float>());
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;

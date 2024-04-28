@@ -74,6 +74,7 @@ void YoloDemo(const std::vector<std::string> &image_paths,
   assert(outputs.size() == batch_size);
 
   for (int i = 0; i < outputs.size(); ++i) {
+    // get the origin image dimension
     const auto &image = cv::imread(image_paths.at(i));
     const int32_t origin_input_h = image.size().height;
     const int32_t origin_input_w = image.size().width;
